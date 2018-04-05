@@ -7,3 +7,12 @@ D:\Files\MsVisualProjects\ServerKeyLogsParser\ServerKeyLogsParser\obj\Debug\Serv
 D:\Files\MsVisualProjects\ServerKeyLogsParser\ServerKeyLogsParser\obj\Debug\ServerKeyLogsParser.exe
 D:\Files\MsVisualProjects\ServerKeyLogsParser\ServerKeyLogsParser\obj\Debug\ServerKeyLogsParser.pdb
 D:\Files\MsVisualProjects\ServerKeyLogsParser\ServerKeyLogsParser\obj\Debug\ServerKeyLogsParser.Form1.resources
+D:\Files\MsVisualProjects\Diplom\Parser\ServerKeyLogsParser\bin\Debug\ServerKeyLogsParser.exe.config
+D:\Files\MsVisualProjects\Diplom\Parser\ServerKeyLogsParser\obj\Debug\ServerKeyLogsParser.exe
+D:\Files\MsVisualProjects\Diplom\Parser\ServerKeyLogsParser\obj\Debug\ServerKeyLogsParser.pdb
+D:\Files\MsVisualProjects\Diplom\Parser\ServerKeyLogsParser\bin\Debug\ServerKeyLogsParser.exe
+D:\Files\MsVisualProjects\Diplom\Parser\ServerKeyLogsParser\bin\Debug\ServerKeyLogsParser.pdb
+D:\Files\MsVisualProjects\Diplom\Parser\ServerKeyLogsParser\obj\Debug\ServerKeyLogsParser.csprojResolveAssemblyReference.cache
+D:\Files\MsVisualProjects\Diplom\Parser\ServerKeyLogsParser\obj\Debug\ServerKeyLogsParser.Form1.resources
+D:\Files\MsVisualProjects\Diplom\Parser\ServerKeyLogsParser\obj\Debug\ServerKeyLogsParser.Properties.Resources.resources
+D:\Files\MsVisualProjects\Diplom\Parser\ServerKeyLogsParser\obj\Debug\ServerKeyLogsParser.csproj.GenerateResource.Cache
