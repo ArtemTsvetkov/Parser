@@ -1,0 +1,9 @@
+D:\Files\MsVisualProjects\ServerKeyLogsParser\ServerKeyLogsParser\bin\Release\ServerKeyLogsParser.exe.config
+D:\Files\MsVisualProjects\ServerKeyLogsParser\ServerKeyLogsParser\bin\Release\ServerKeyLogsParser.exe
+D:\Files\MsVisualProjects\ServerKeyLogsParser\ServerKeyLogsParser\bin\Release\ServerKeyLogsParser.pdb
+D:\Files\MsVisualProjects\ServerKeyLogsParser\ServerKeyLogsParser\obj\Release\ServerKeyLogsParser.csprojResolveAssemblyReference.cache
+D:\Files\MsVisualProjects\ServerKeyLogsParser\ServerKeyLogsParser\obj\Release\ServerKeyLogsParser.Form1.resources
+D:\Files\MsVisualProjects\ServerKeyLogsParser\ServerKeyLogsParser\obj\Release\ServerKeyLogsParser.Properties.Resources.resources
+D:\Files\MsVisualProjects\ServerKeyLogsParser\ServerKeyLogsParser\obj\Release\ServerKeyLogsParser.csproj.GenerateResource.Cache
+D:\Files\MsVisualProjects\ServerKeyLogsParser\ServerKeyLogsParser\obj\Release\ServerKeyLogsParser.exe
+D:\Files\MsVisualProjects\ServerKeyLogsParser\ServerKeyLogsParser\obj\Release\ServerKeyLogsParser.pdb
