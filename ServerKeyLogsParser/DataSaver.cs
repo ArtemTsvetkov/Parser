@@ -8,6 +8,10 @@ namespace ServerKeyLogsParser
 {
     interface DataSaver
     {
+        void setConfig(string host, string query);
+        void setConfig(string host, List<string> querys);
+        object execute();
+        bool connect();
     }
 }
 /*

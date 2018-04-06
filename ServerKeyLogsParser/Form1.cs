@@ -16,6 +16,10 @@ namespace ServerKeyLogsParser
         public Form1()
         {
             //InitializeComponent();
+            MSAccessProxy testDS = new MSAccessProxy();
+            testDS.setConfig("D:\\Files\\MsVisualProjects\\Diplom\\Логи\\testlogs\\Database3.accdb","SELECT * FROM Information");
+            testDS.execute();
+
             List<string> buf_of_lines = new List<string>();
             try
             {
