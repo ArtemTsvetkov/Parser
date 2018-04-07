@@ -16,9 +16,12 @@ namespace ServerKeyLogsParser
         public Form1()
         {
             //InitializeComponent();
-            MSAccessProxy testDS = new MSAccessProxy();
+            /*MSAccessProxy testDS = new MSAccessProxy();
             testDS.setConfig("D:\\Files\\MsVisualProjects\\Diplom\\Логи\\testlogs\\Database3.accdb","SELECT * FROM Information");
-            testDS.execute();
+            testDS.execute();*/
+            Model model = new ParseModel();
+            ConcreteCommandStore commandsStore = new ConcreteCommandStore();
+
 
             List<string> buf_of_lines = new List<string>();
             try
@@ -40,7 +43,8 @@ namespace ServerKeyLogsParser
 
 
                 //читаем файл настроек
-                buf_of_lines = rwtf.Read_from_file(Directory.GetCurrentDirectory() + "\\settings.txt");
+                commandsStore.executeCommand(new ConfigModelCommand(model));
+                /*buf_of_lines = rwtf.Read_from_file(Directory.GetCurrentDirectory() + "\\settings.txt");
                 for (int i = 0; i < buf_of_lines.Count; i++)
                 {
                     if (buf_of_lines.ElementAt(i) != "")
@@ -98,6 +102,8 @@ namespace ServerKeyLogsParser
                         }
                     }
                 }
+                */
+
 
                 for (int h = 0; h < log_files.Count; h++)//последовательно разбираем файлы
                 {
@@ -124,83 +130,44 @@ namespace ServerKeyLogsParser
                         //запись ответа в БД
                         WorkWithMSAccess wwmsa = new WorkWithMSAccess();
                         //получение значения id
-                        if (password_of_data_base != "")
+                        
+                        DataSet ds = wwmsa.Run_query(path_of_data_base, "SELECT COUNT(*) FROM " + table_of_data_base);
+                        int id = int.Parse(ds.Tables[0].Rows[0][0].ToString());
+                        //формирование массива запросов 
+                        List<string> buf = new List<string>();
+                        for (int i = 0; i < result.Count; i++)
                         {
-                            DataSet ds = wwmsa.Run_query(path_of_data_base, password_of_data_base, "SELECT COUNT(*) FROM " + table_of_data_base);
-                            int id = int.Parse(ds.Tables[0].Rows[0][0].ToString());
-                            //формирование массива запросов 
-                            List<string> buf = new List<string>();
-                            for (int i = 0; i < result.Count; i++)
+                            if (result.ElementAt(i).vendor == "Aveva")//если это логи aveva, то нужно каждый раз проверять, есть ли такие же записи в бд
                             {
-                                if (result.ElementAt(i).vendor == "Aveva")//если это логи aveva, то нужно каждый раз проверять, есть ли такие же записи в бд
+                                ds = wwmsa.Run_query(path_of_data_base, "SELECT * from " + table_of_data_base + " where server_host='" + result.ElementAt(i).servers_host + "' and vendor='" + result.ElementAt(i).vendor + "' and user_name='" + result.ElementAt(i).user + "' and user_host='" + result.ElementAt(i).host + "' and year_in=" + result.ElementAt(i).star_time.Year + " and month_in=" + result.ElementAt(i).star_time.Month + " and day_in=" + result.ElementAt(i).star_time.Day + " and hours_in=" + result.ElementAt(i).star_time.Hour + " and minute_in=" + result.ElementAt(i).star_time.Minute + " and second_in=" + result.ElementAt(i).star_time.Second + "");
+                                int count = ds.Tables[0].Rows.Count;
+                                if (count == 0)//значит нет такой строки и ее можно записать
                                 {
-                                    ds = wwmsa.Run_query(path_of_data_base, password_of_data_base, "SELECT * from " + table_of_data_base + " where server_host='" + result.ElementAt(i).host + "' and vendor='" + result.ElementAt(i).vendor + "' and user_name='" + result.ElementAt(i).user + "' and user_host='" + result.ElementAt(i).host + "' and year_in=" + result.ElementAt(i).star_time.Year + " and month_in=" + result.ElementAt(i).star_time.Month + " and day_in=" + result.ElementAt(i).star_time.Day + " and hours_in=" + result.ElementAt(i).star_time.Hour + " and minute_in=" + result.ElementAt(i).star_time.Minute + " and second_in=" + result.ElementAt(i).star_time.Second + "");
-                                    int count = ds.Tables[0].Rows.Count;
-                                    if (count == 0)//значит нет такой строки и ее можно записать
-                                    {
-                                        wwmsa.Run_query_without_answer(path_of_data_base, password_of_data_base, "INSERT INTO " + table_of_data_base + " VALUES(" + id + ",'" + server_host + "','" + result.ElementAt(i).vendor + "','" + result.ElementAt(i).po + "','" + result.ElementAt(i).user + "','" + result.ElementAt(i).host + "'," + result.ElementAt(i).star_time.Year + "," + result.ElementAt(i).star_time.Month + "," + result.ElementAt(i).star_time.Day + "," + result.ElementAt(i).star_time.Hour + "," + result.ElementAt(i).star_time.Minute + "," + result.ElementAt(i).star_time.Second + "," + result.ElementAt(i).finish_time.Year + "," + result.ElementAt(i).finish_time.Month + "," + result.ElementAt(i).finish_time.Day + "," + result.ElementAt(i).finish_time.Hour + "," + result.ElementAt(i).finish_time.Minute + "," + result.ElementAt(i).finish_time.Second + ")");
-                                        id++;
-                                    }
-                                }
-                                if (result.ElementAt(i).star_time.Year == 1)//если дата не известна, то вместо нее везде стоят единицы, но чтобы все не проверять, достаточно проверить толлько год, он при известной дате точно не может быть равен 1
-                                {
-                                    buf.Add("INSERT INTO " + table_of_data_base + " VALUES(" + id + ",'" + server_host + "','" + result.ElementAt(i).vendor + "','" + result.ElementAt(i).po + "','" + result.ElementAt(i).user + "','" + result.ElementAt(i).host + "'," + "null" + "," + "null" + "," + "null" + "," + "null" + "," + "null" + "," + "null" + "," + result.ElementAt(i).finish_time.Year + "," + result.ElementAt(i).finish_time.Month + "," + result.ElementAt(i).finish_time.Day + "," + result.ElementAt(i).finish_time.Hour + "," + result.ElementAt(i).finish_time.Minute + "," + result.ElementAt(i).finish_time.Second + ")");
-                                    id++;
-                                    continue;
-                                }
-                                if (result.ElementAt(i).finish_time.Year == 1)//если дата не известна, то вместо нее везде стоят единицы, но чтобы все не проверять, достаточно проверить толлько год, он при известной дате точно не может быть равен 1
-                                {
-                                    buf.Add("INSERT INTO " + table_of_data_base + " VALUES(" + id + ",'" + server_host + "','" + result.ElementAt(i).vendor + "','" + result.ElementAt(i).po + "','" + result.ElementAt(i).user + "','" + result.ElementAt(i).host + "'," + result.ElementAt(i).star_time.Year + "," + result.ElementAt(i).star_time.Month + "," + result.ElementAt(i).star_time.Day + "," + result.ElementAt(i).star_time.Hour + "," + result.ElementAt(i).star_time.Minute + "," + result.ElementAt(i).star_time.Second + "," + "null" + "," + "null" + "," + "null" + "," + "null" + "," + "null" + "," + "null" + ")");
-                                    id++;
-                                    continue;
-                                }
-                                if ((result.ElementAt(i).finish_time.Year != 1) | (result.ElementAt(i).star_time.Year != 1))
-                                {
-                                    buf.Add("INSERT INTO " + table_of_data_base + " VALUES(" + id + ",'" + server_host + "','" + result.ElementAt(i).vendor + "','" + result.ElementAt(i).po + "','" + result.ElementAt(i).user + "','" + result.ElementAt(i).host + "'," + result.ElementAt(i).star_time.Year + "," + result.ElementAt(i).star_time.Month + "," + result.ElementAt(i).star_time.Day + "," + result.ElementAt(i).star_time.Hour + "," + result.ElementAt(i).star_time.Minute + "," + result.ElementAt(i).star_time.Second + "," + result.ElementAt(i).finish_time.Year + "," + result.ElementAt(i).finish_time.Month + "," + result.ElementAt(i).finish_time.Day + "," + result.ElementAt(i).finish_time.Hour + "," + result.ElementAt(i).finish_time.Minute + "," + result.ElementAt(i).finish_time.Second + ")");
+                                    wwmsa.Run_query_without_answer(path_of_data_base, password_of_data_base, "INSERT INTO " + table_of_data_base + " VALUES(" + id + ",'" + server_host + "','" + result.ElementAt(i).vendor + "','" + result.ElementAt(i).po + "','" + result.ElementAt(i).user + "','" + result.ElementAt(i).host + "'," + result.ElementAt(i).star_time.Year + "," + result.ElementAt(i).star_time.Month + "," + result.ElementAt(i).star_time.Day + "," + result.ElementAt(i).star_time.Hour + "," + result.ElementAt(i).star_time.Minute + "," + result.ElementAt(i).star_time.Second + "," + result.ElementAt(i).finish_time.Year + "," + result.ElementAt(i).finish_time.Month + "," + result.ElementAt(i).finish_time.Day + "," + result.ElementAt(i).finish_time.Hour + "," + result.ElementAt(i).finish_time.Minute + "," + result.ElementAt(i).finish_time.Second + ")");
                                     id++;
                                 }
+                                continue;
                             }
-                            wwmsa.Run_query_without_answer_buf(path_of_data_base, password_of_data_base, buf);
-                        }
-                        else
-                        {
-                            DataSet ds = wwmsa.Run_query(path_of_data_base, "SELECT COUNT(*) FROM " + table_of_data_base);
-                            int id = int.Parse(ds.Tables[0].Rows[0][0].ToString());
-                            //формирование массива запросов 
-                            List<string> buf = new List<string>();
-                            for (int i = 0; i < result.Count; i++)
+                            if (result.ElementAt(i).star_time.Year == 1)//если дата не известна, то вместо нее везде стоят единицы, но чтобы все не проверять, достаточно проверить толлько год, он при известной дате точно не может быть равен 1
                             {
-                                if (result.ElementAt(i).vendor == "Aveva")//если это логи aveva, то нужно каждый раз проверять, есть ли такие же записи в бд
-                                {
-                                    ds = wwmsa.Run_query(path_of_data_base, "SELECT * from " + table_of_data_base + " where server_host='" + result.ElementAt(i).servers_host + "' and vendor='" + result.ElementAt(i).vendor + "' and user_name='" + result.ElementAt(i).user + "' and user_host='" + result.ElementAt(i).host + "' and year_in=" + result.ElementAt(i).star_time.Year + " and month_in=" + result.ElementAt(i).star_time.Month + " and day_in=" + result.ElementAt(i).star_time.Day + " and hours_in=" + result.ElementAt(i).star_time.Hour + " and minute_in=" + result.ElementAt(i).star_time.Minute + " and second_in=" + result.ElementAt(i).star_time.Second + "");
-                                    int count = ds.Tables[0].Rows.Count;
-                                    if (count == 0)//значит нет такой строки и ее можно записать
-                                    {
-                                        wwmsa.Run_query_without_answer(path_of_data_base, password_of_data_base, "INSERT INTO " + table_of_data_base + " VALUES(" + id + ",'" + server_host + "','" + result.ElementAt(i).vendor + "','" + result.ElementAt(i).po + "','" + result.ElementAt(i).user + "','" + result.ElementAt(i).host + "'," + result.ElementAt(i).star_time.Year + "," + result.ElementAt(i).star_time.Month + "," + result.ElementAt(i).star_time.Day + "," + result.ElementAt(i).star_time.Hour + "," + result.ElementAt(i).star_time.Minute + "," + result.ElementAt(i).star_time.Second + "," + result.ElementAt(i).finish_time.Year + "," + result.ElementAt(i).finish_time.Month + "," + result.ElementAt(i).finish_time.Day + "," + result.ElementAt(i).finish_time.Hour + "," + result.ElementAt(i).finish_time.Minute + "," + result.ElementAt(i).finish_time.Second + ")");
-                                        id++;
-                                    }
-                                    continue;
-                                }
-                                if (result.ElementAt(i).star_time.Year == 1)//если дата не известна, то вместо нее везде стоят единицы, но чтобы все не проверять, достаточно проверить толлько год, он при известной дате точно не может быть равен 1
-                                {
-                                    buf.Add("INSERT INTO " + table_of_data_base + " VALUES(" + id + ",'" + server_host + "','" + result.ElementAt(i).vendor + "','" + result.ElementAt(i).po + "','" + result.ElementAt(i).user + "','" + result.ElementAt(i).host + "'," + "null" + "," + "null" + "," + "null" + "," + "null" + "," + "null" + "," + "null" + "," + result.ElementAt(i).finish_time.Year + "," + result.ElementAt(i).finish_time.Month + "," + result.ElementAt(i).finish_time.Day + "," + result.ElementAt(i).finish_time.Hour + "," + result.ElementAt(i).finish_time.Minute + "," + result.ElementAt(i).finish_time.Second + ")");
-                                    id++;
-                                    continue;
-                                }
-                                if (result.ElementAt(i).finish_time.Year == 1)//если дата не известна, то вместо нее везде стоят единицы, но чтобы все не проверять, достаточно проверить толлько год, он при известной дате точно не может быть равен 1
-                                {
-                                    buf.Add("INSERT INTO " + table_of_data_base + " VALUES(" + id + ",'" + server_host + "','" + result.ElementAt(i).vendor + "','" + result.ElementAt(i).po + "','" + result.ElementAt(i).user + "','" + result.ElementAt(i).host + "'," + result.ElementAt(i).star_time.Year + "," + result.ElementAt(i).star_time.Month + "," + result.ElementAt(i).star_time.Day + "," + result.ElementAt(i).star_time.Hour + "," + result.ElementAt(i).star_time.Minute + "," + result.ElementAt(i).star_time.Second + "," + "null" + "," + "null" + "," + "null" + "," + "null" + "," + "null" + "," + "null" + ")");
-                                    id++;
-                                    continue;
-                                }
-                                if ((result.ElementAt(i).finish_time.Year != 1) & (result.ElementAt(i).star_time.Year != 1))
-                                {
-                                    buf.Add("INSERT INTO " + table_of_data_base + " VALUES(" + id + ",'" + server_host + "','" + result.ElementAt(i).vendor + "','" + result.ElementAt(i).po + "','" + result.ElementAt(i).user + "','" + result.ElementAt(i).host + "'," + result.ElementAt(i).star_time.Year + "," + result.ElementAt(i).star_time.Month + "," + result.ElementAt(i).star_time.Day + "," + result.ElementAt(i).star_time.Hour + "," + result.ElementAt(i).star_time.Minute + "," + result.ElementAt(i).star_time.Second + "," + result.ElementAt(i).finish_time.Year + "," + result.ElementAt(i).finish_time.Month + "," + result.ElementAt(i).finish_time.Day + "," + result.ElementAt(i).finish_time.Hour + "," + result.ElementAt(i).finish_time.Minute + "," + result.ElementAt(i).finish_time.Second + ")");
-                                    id++;
-                                }
+                                buf.Add("INSERT INTO " + table_of_data_base + " VALUES(" + id + ",'" + server_host + "','" + result.ElementAt(i).vendor + "','" + result.ElementAt(i).po + "','" + result.ElementAt(i).user + "','" + result.ElementAt(i).host + "'," + "null" + "," + "null" + "," + "null" + "," + "null" + "," + "null" + "," + "null" + "," + result.ElementAt(i).finish_time.Year + "," + result.ElementAt(i).finish_time.Month + "," + result.ElementAt(i).finish_time.Day + "," + result.ElementAt(i).finish_time.Hour + "," + result.ElementAt(i).finish_time.Minute + "," + result.ElementAt(i).finish_time.Second + ")");
+                                id++;
+                                continue;
                             }
-                            wwmsa.Run_query_without_answer_buf(path_of_data_base, buf);
+                            if (result.ElementAt(i).finish_time.Year == 1)//если дата не известна, то вместо нее везде стоят единицы, но чтобы все не проверять, достаточно проверить толлько год, он при известной дате точно не может быть равен 1
+                            {
+                                buf.Add("INSERT INTO " + table_of_data_base + " VALUES(" + id + ",'" + server_host + "','" + result.ElementAt(i).vendor + "','" + result.ElementAt(i).po + "','" + result.ElementAt(i).user + "','" + result.ElementAt(i).host + "'," + result.ElementAt(i).star_time.Year + "," + result.ElementAt(i).star_time.Month + "," + result.ElementAt(i).star_time.Day + "," + result.ElementAt(i).star_time.Hour + "," + result.ElementAt(i).star_time.Minute + "," + result.ElementAt(i).star_time.Second + "," + "null" + "," + "null" + "," + "null" + "," + "null" + "," + "null" + "," + "null" + ")");
+                                id++;
+                                continue;
+                            }
+                            if ((result.ElementAt(i).finish_time.Year != 1) & (result.ElementAt(i).star_time.Year != 1))
+                            {
+                                buf.Add("INSERT INTO " + table_of_data_base + " VALUES(" + id + ",'" + server_host + "','" + result.ElementAt(i).vendor + "','" + result.ElementAt(i).po + "','" + result.ElementAt(i).user + "','" + result.ElementAt(i).host + "'," + result.ElementAt(i).star_time.Year + "," + result.ElementAt(i).star_time.Month + "," + result.ElementAt(i).star_time.Day + "," + result.ElementAt(i).star_time.Hour + "," + result.ElementAt(i).star_time.Minute + "," + result.ElementAt(i).star_time.Second + "," + result.ElementAt(i).finish_time.Year + "," + result.ElementAt(i).finish_time.Month + "," + result.ElementAt(i).finish_time.Day + "," + result.ElementAt(i).finish_time.Hour + "," + result.ElementAt(i).finish_time.Minute + "," + result.ElementAt(i).finish_time.Second + ")");
+                                id++;
+                            }
                         }
+                        wwmsa.Run_query_without_answer_buf(path_of_data_base, buf);
+                        
 
 
                         //перезапись последней даты

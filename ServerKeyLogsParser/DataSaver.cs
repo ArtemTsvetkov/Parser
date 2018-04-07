@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,7 +11,7 @@ namespace ServerKeyLogsParser
     {
         void setConfig(string host, string query);
         void setConfig(string host, List<string> querys);
-        object execute();
+        DataSet execute();
         bool connect();
     }
 }

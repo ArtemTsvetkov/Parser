@@ -11,5 +11,6 @@ namespace ServerKeyLogsParser
         void push(Command command);//Добавление команды в стек
         Command pop();//Извлечение команды из стека
         void executeCommand(Command command);//Выполнение команды
+        void recoveryModel();//Откат изменений модели
     }
 }

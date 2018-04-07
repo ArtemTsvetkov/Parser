@@ -8,5 +8,11 @@ namespace ServerKeyLogsParser
 {
     interface Model
     {
+        void parseFiles(List<LogAndHisLastEntry> log_files);//Распарсить файлы логов
+        void setConfig(string pathToFileConfig);//Загрузка в модель файла с конфигурацией
+        void unloadIntoDB();//Выгрузить результаты в БД
+        void updateConfig(string pathToFileConfig);//Выгрузить файл с конфигурацией (обновить)
+        ModelsState copySelf();
+        void recoverySelf(ModelsState state);
     }
 }

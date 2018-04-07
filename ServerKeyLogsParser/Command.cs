@@ -8,8 +8,9 @@ namespace ServerKeyLogsParser
 {
     interface Command
     {
-        void setModelState();
+        ModelsState getModelState();//Получить сохраненное состояние модели
         void execute();
+        void recoveryModel();
     }
 }
 /*

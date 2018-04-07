@@ -34,7 +34,7 @@ namespace ServerKeyLogsParser
             saver.setConfig(host, query);
         }
 
-        public object execute()
+        public DataSet execute()
         {
             if(connect())
             {
