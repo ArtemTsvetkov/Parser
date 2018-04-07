@@ -76,7 +76,7 @@ namespace ServerKeyLogsParser
                 DateTime thisDay = DateTime.Now;
                 buf.Add("Time: " + thisDay.ToString());
                 buf.Add("Exception: " + ex.Message);
-                rwtf.Write_to_file(buf, Directory.GetCurrentDirectory() + "\\Errors.txt", 0);
+                ReadWriteTextFile.Write_to_file(buf, Directory.GetCurrentDirectory() + "\\Errors.txt", 0);
                 return false;
             }
             finally

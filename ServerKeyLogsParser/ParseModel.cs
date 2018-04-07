@@ -17,13 +17,13 @@ namespace ServerKeyLogsParser
             return state;
         }
 
-        public void parseFiles(List<LogAndHisLastEntry> log_files)
+        public void parseFiles()
         {
-            for (int h = 0; h < log_files.Count; h++)//последовательно разбираем файлы
+            for (int h = 0; h < state.logFiles.Count; h++)//последовательно разбираем файлы
             {
                 //читаем лог-файл
                 LogAndHisLastEntry lahle = new LogAndHisLastEntry();
-                lahle = log_files.ElementAt(h);
+                lahle = state.logFiles.ElementAt(h);
                 try
                 {
                     string last_date = "";//записываю для перезаписи файла настроек 
@@ -32,13 +32,13 @@ namespace ServerKeyLogsParser
                                          //парсим лог-файл
                     if (state.bufOfLines.ElementAt(0) == "Aveva")
                     {
-                        state.result = aveva_parser.go_parsing(state.bufOfLines, state.serverHost);
-                        File.Delete(log_files.ElementAt(h).path);
+                        state.result = state.aveva_parser.go_parsing(state.bufOfLines, state.serverHost);
+                        File.Delete(state.logFiles.ElementAt(h).path);
                         state.avevasLogWasDelete = true;
                     }
                     else
                     {
-                        state.result = autodesk_parser.go_parsing(state.bufOfLines, state.serverHost, ref last_date);
+                        state.result = state.autodesk_parser.go_parsing(state.bufOfLines, state.serverHost, ref last_date);
                     }
 
                     //запись ответа в БД
@@ -98,7 +98,7 @@ namespace ServerKeyLogsParser
                             string[] words = state.bufOfLines.ElementAt(i).Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                             if (words[1] == "path_of_log_file")//если это путь к логу, то записываю в него новую дату
                             {
-                                if (words[0] == log_files.ElementAt(h).path)
+                                if (words[0] == state.logFiles.ElementAt(h).path)
                                 {
                                     string new_line = "";
                                     if (last_date != "")
@@ -186,7 +186,7 @@ namespace ServerKeyLogsParser
                             state.pathOfDataBase = words[0];
                             continue;
                         }
-                        if (words[1] == "table")//если это пароль
+                        if (words[1] == "table")//если это название таблицы
                         {
                             state.tableOfDataBase = words[0];
                             continue;

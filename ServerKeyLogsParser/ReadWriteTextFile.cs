@@ -107,7 +107,7 @@ namespace ServerKeyLogsParser
                 
                 
                 
-                    /*//Копировать
+                    //Копировать
                     //сразу запишу в ответ строку с датой, иначе ее может и не быть
                     string[] new_date = onli_time_plus_date[0].Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
                     buf_of_file_lines.Add(onli_time_plus_date[1] + " (adskflex) (@adskflex-SLOG@) Time: Tue " + month_converter(int.Parse(new_date.ElementAt(1))) + " " + new_date.ElementAt(0) + " " + new_date.ElementAt(2) + " " + onli_time_plus_date[1] + " Калининградское время (зима)");
@@ -140,7 +140,7 @@ namespace ServerKeyLogsParser
                             buf_of_file_lines.Add(row); //считываем все данные с потока
                             found_the_last_date = 4;//чтобы работало только это условие
                         }
-                    }*///Копировать
+                    }//Копировать
 
 
 
@@ -199,7 +199,7 @@ namespace ServerKeyLogsParser
         }
 
 
-        private bool Check_rows_on_time(string row, string last_time_non_parsing, ref int previous_time)//проверка на уже проверенные строки, когда вернет true можно дальше не проверять
+        private static bool Check_rows_on_time(string row, string last_time_non_parsing, ref int previous_time)//проверка на уже проверенные строки, когда вернет true можно дальше не проверять
         {
             string in_example = @".*IN\W.*";
             string out_example = @".*OUT\W.*";
@@ -253,7 +253,7 @@ namespace ServerKeyLogsParser
 
 
 
-        private int Check_rows_on_date(string row, string last_date_non_parsing, ref int previous_time_hour)//проверка на уже проверенные строки, когда вернет true можно дальше проверять функцией Check_rows_on_time
+        private static int Check_rows_on_date(string row, string last_date_non_parsing, ref int previous_time_hour)//проверка на уже проверенные строки, когда вернет true можно дальше проверять функцией Check_rows_on_time
         {//0-не новая дата, 1-новая дата, 2-за день до новой даты. 2 нужна, потому что новая дата пишется не в 24:00, а на несколько часов позже
             string time_example = @".*Time:.*";
             string time_example2 = @".*Start-Date:.*";
@@ -343,7 +343,7 @@ namespace ServerKeyLogsParser
 
 
 
-        private bool check_on_new_day(string row, ref int previous_time_hour)
+        private static bool check_on_new_day(string row, ref int previous_time_hour)
         {
             string[] words = row.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             string[] time_string = words[0].Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
@@ -367,7 +367,7 @@ namespace ServerKeyLogsParser
 
 
 
-        private int month_converter(string month)//перевод символьного обозначения месяца в числовое
+        private static int month_converter(string month)//перевод символьного обозначения месяца в числовое
         {
             string[] conveter_month = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
             for (int i = 0; i < 12; i++)
@@ -383,7 +383,7 @@ namespace ServerKeyLogsParser
 
 
 
-        private string month_converter(int month)//перевод числового обозначения месяца в символьное
+        private static string month_converter(int month)//перевод числового обозначения месяца в символьное
         {
             string[] conveter_month = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
             return conveter_month.ElementAt((month-1));

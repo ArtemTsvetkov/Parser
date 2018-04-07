@@ -16,10 +16,10 @@ namespace ServerKeyLogsParser
         private string query;//Для выполненения 1 запроса
         private List<string> querys;//Для выполнения сразу нескольких запросов
 
-        public object execute()
+        public DataSet execute()
         {
             List<string> currentQuerys = new List<string>();
-            if(query.Equals(null))
+            if(query == null)
             {
                 currentQuerys = querys;
             }
@@ -101,7 +101,7 @@ namespace ServerKeyLogsParser
                         buf.Add("Time: " + thisDay.ToString());
                         buf.Add("Exception: " + ex.Message);
                         buf.Add("Query:" + query);
-                        rwtf.Write_to_file(buf, Directory.GetCurrentDirectory() + "\\Errors.txt", 0);
+                        ReadWriteTextFile.Write_to_file(buf, Directory.GetCurrentDirectory() + "\\Errors.txt", 0);
                     }
                 }
                 return dataSet;
@@ -115,7 +115,7 @@ namespace ServerKeyLogsParser
                 DateTime thisDay = DateTime.Now;
                 buf.Add("Time: " + thisDay.ToString());
                 buf.Add("Exception: " + ex.Message);
-                rwtf.Write_to_file(buf, Directory.GetCurrentDirectory() + "\\Errors.txt", 0);
+                ReadWriteTextFile.Write_to_file(buf, Directory.GetCurrentDirectory() + "\\Errors.txt", 0);
                 return null;
             }
             finally
