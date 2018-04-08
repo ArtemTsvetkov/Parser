@@ -126,8 +126,8 @@ namespace ServerKeyLogsParser
                 buf.Add("Time: "+thisDay.ToString());
                 buf.Add("Exception: " + ex.Message);
                 buf.Add("Rows:");
-                rwtf.Write_to_file(buf, Directory.GetCurrentDirectory() + "\\Errors.txt", 0);
-                rwtf.Write_to_file(buf_of_lines, Directory.GetCurrentDirectory() + "\\Errors.txt", 0);
+                ReadWriteTextFile.Write_to_file(buf, Directory.GetCurrentDirectory() + "\\Errors.txt", 0);
+                ReadWriteTextFile.Write_to_file(buf_of_lines, Directory.GetCurrentDirectory() + "\\Errors.txt", 0);
                 result.Clear();
                 return result;
             }

@@ -10,7 +10,7 @@ namespace ServerKeyLogsParser
 {
     class ReadWriteTextFile
     {
-        public bool Write_to_file(List<String> buf_of_file_lines, string file_path, int action)
+        public static bool Write_to_file(List<String> buf_of_file_lines, string file_path, int action)
         {
             try
             {
@@ -50,21 +50,21 @@ namespace ServerKeyLogsParser
             }
             catch(Exception ex)
             {
-                ReadWriteTextFile rwtf = new ReadWriteTextFile();
+                //ReadWriteTextFile rwtf = new ReadWriteTextFile();
                 List<string> buf = new List<string>();
                 buf.Add("-----------------------------------------------");
                 buf.Add("Module: ReadWriteTextFile");
                 DateTime thisDay = DateTime.Now;
                 buf.Add("Time: " + thisDay.ToString());
                 buf.Add("Exception: " + ex.Message);
-                rwtf.Write_to_file(buf, Directory.GetCurrentDirectory() + "\\Errors.txt", 0);
+                Write_to_file(buf, Directory.GetCurrentDirectory() + "\\Errors.txt", 0);
                 return false;
             }
         }
 
 
 
-        public List<String> Read_from_file(string file_path, string last_records_time)
+        public static List<String> Read_from_file(string file_path, string last_records_time)
         {
             List<String> buf_of_file_lines = new List<string>();
             int i = 0;
@@ -81,6 +81,7 @@ namespace ServerKeyLogsParser
                 StreamReader reader = new StreamReader(file1, Encoding.UTF8); // создаем «потоковый читатель» и связываем его с файловым потоком 
 
 
+                /*
                 //читаем первые 4 строки для идентификации лога авевы
                 for (int j = 0; j < 4; j++)
                 {
@@ -95,9 +96,18 @@ namespace ServerKeyLogsParser
                         row = reader.ReadLine();
                         buf_of_file_lines.Add(row); //считываем все данные с потока
                     }
-                }
-                else//это autodesk-лог
-                {
+                }*/
+                /*else//это autodesk-лог
+                {*/
+                    
+                
+                
+                
+                
+                
+                
+                
+                    //Копировать
                     //сразу запишу в ответ строку с датой, иначе ее может и не быть
                     string[] new_date = onli_time_plus_date[0].Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
                     buf_of_file_lines.Add(onli_time_plus_date[1] + " (adskflex) (@adskflex-SLOG@) Time: Tue " + month_converter(int.Parse(new_date.ElementAt(1))) + " " + new_date.ElementAt(0) + " " + new_date.ElementAt(2) + " " + onli_time_plus_date[1] + " Калининградское время (зима)");
@@ -130,36 +140,36 @@ namespace ServerKeyLogsParser
                             buf_of_file_lines.Add(row); //считываем все данные с потока
                             found_the_last_date = 4;//чтобы работало только это условие
                         }
-                        
-                        
-                        
-                        /*if (i == 8255)
-                        {
-                            int gdfg = 0;
-                        }
-                        i++;*/
-                    }
-                }
+                    }//Копировать
+
+
+
+
+
+
+
+
+                /*}*/
                 reader.Close(); //закрываем поток
                 return buf_of_file_lines;
             }
             catch (Exception ex)
             {
                 buf_of_file_lines.Clear();
-                ReadWriteTextFile rwtf = new ReadWriteTextFile();
+                //ReadWriteTextFile rwtf = new ReadWriteTextFile();
                 List<string> buf = new List<string>();
                 buf.Add("-----------------------------------------------");
                 buf.Add("Module: ReadWriteTextFile");
                 DateTime thisDay = DateTime.Now;
                 buf.Add("Time: " + thisDay.ToString());
                 buf.Add("Exception: " + ex.Message);
-                rwtf.Write_to_file(buf, Directory.GetCurrentDirectory() + "\\Errors.txt", 0);
+                Write_to_file(buf, Directory.GetCurrentDirectory() + "\\Errors.txt", 0);
                 return buf_of_file_lines;
             }
         }
 
 
-        public List<String> Read_from_file(string file_path)//обычное чтение файла
+        public static List<String> Read_from_file(string file_path)//обычное чтение файла
         {
             List<String> buf_of_file_lines = new List<string>();
             try
@@ -176,20 +186,20 @@ namespace ServerKeyLogsParser
             catch (Exception ex)
             {
                 buf_of_file_lines.Clear();
-                ReadWriteTextFile rwtf = new ReadWriteTextFile();
+                //ReadWriteTextFile rwtf = new ReadWriteTextFile();
                 List<string> buf = new List<string>();
                 buf.Add("-----------------------------------------------");
                 buf.Add("Module: ReadWriteTextFile");
                 DateTime thisDay = DateTime.Now;
                 buf.Add("Time: " + thisDay.ToString());
                 buf.Add("Exception: " + ex.Message);
-                rwtf.Write_to_file(buf, Directory.GetCurrentDirectory() + "\\Errors.txt", 0);
+                Write_to_file(buf, Directory.GetCurrentDirectory() + "\\Errors.txt", 0);
                 return buf_of_file_lines;
             }
         }
 
 
-        private bool Check_rows_on_time(string row, string last_time_non_parsing, ref int previous_time)//проверка на уже проверенные строки, когда вернет true можно дальше не проверять
+        private static bool Check_rows_on_time(string row, string last_time_non_parsing, ref int previous_time)//проверка на уже проверенные строки, когда вернет true можно дальше не проверять
         {
             string in_example = @".*IN\W.*";
             string out_example = @".*OUT\W.*";
@@ -243,7 +253,7 @@ namespace ServerKeyLogsParser
 
 
 
-        private int Check_rows_on_date(string row, string last_date_non_parsing, ref int previous_time_hour)//проверка на уже проверенные строки, когда вернет true можно дальше проверять функцией Check_rows_on_time
+        private static int Check_rows_on_date(string row, string last_date_non_parsing, ref int previous_time_hour)//проверка на уже проверенные строки, когда вернет true можно дальше проверять функцией Check_rows_on_time
         {//0-не новая дата, 1-новая дата, 2-за день до новой даты. 2 нужна, потому что новая дата пишется не в 24:00, а на несколько часов позже
             string time_example = @".*Time:.*";
             string time_example2 = @".*Start-Date:.*";
@@ -333,7 +343,7 @@ namespace ServerKeyLogsParser
 
 
 
-        private bool check_on_new_day(string row, ref int previous_time_hour)
+        private static bool check_on_new_day(string row, ref int previous_time_hour)
         {
             string[] words = row.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             string[] time_string = words[0].Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
@@ -357,7 +367,7 @@ namespace ServerKeyLogsParser
 
 
 
-        private int month_converter(string month)//перевод символьного обозначения месяца в числовое
+        private static int month_converter(string month)//перевод символьного обозначения месяца в числовое
         {
             string[] conveter_month = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
             for (int i = 0; i < 12; i++)
@@ -373,7 +383,7 @@ namespace ServerKeyLogsParser
 
 
 
-        private string month_converter(int month)//перевод числового обозначения месяца в символьное
+        private static string month_converter(int month)//перевод числового обозначения месяца в символьное
         {
             string[] conveter_month = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
             return conveter_month.ElementAt((month-1));
