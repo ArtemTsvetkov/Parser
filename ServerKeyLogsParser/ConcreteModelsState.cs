@@ -19,13 +19,6 @@ namespace ServerKeyLogsParser
         public List<LogAndHisLastEntry> logFiles = new List<LogAndHisLastEntry>();
         public List<string> bufOfLines = new List<string>();
         public List<ResultTableRows> result = new List<ResultTableRows>();
-
-
-
-
-
-
-
         public AutoDeskParser autodesk_parser = new AutoDeskParser();
         public AvevaParser aveva_parser = new AvevaParser();
     }

@@ -214,17 +214,5 @@ namespace ServerKeyLogsParser
                 }
             }
         }
-
-
-        public void unloadIntoDB()
-        {
-            throw new NotImplementedException();
-        }
-
-
-        public void updateConfig(string pathToFileConfig)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

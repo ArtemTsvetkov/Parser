@@ -8,7 +8,7 @@ namespace ServerKeyLogsParser
 {
     interface DataConverter
     {
-        object convert();
+        //object convert();
     }
 }
 /*

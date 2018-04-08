@@ -25,7 +25,8 @@ namespace ServerKeyLogsParser
             {
                 //читаем файл настроек
                 commandsStore.executeCommand(new ConfigModelCommand(model));
-                model.parseFiles();
+                //разбираем файлы логов
+                commandsStore.executeCommand(new ParseCommand(model));
             }
             catch (Exception ex)
             {

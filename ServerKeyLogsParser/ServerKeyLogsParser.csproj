@@ -68,6 +68,7 @@
     <Compile Include="ModelsState.cs" />
     <Compile Include="MSAccessDataSaver.cs" />
     <Compile Include="MSAccessProxy.cs" />
+    <Compile Include="ParseCommand.cs" />
     <Compile Include="ParseModel.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
