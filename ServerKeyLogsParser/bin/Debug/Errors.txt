@@ -1,0 +1,20 @@
+﻿-----------------------------------------------
+Module: Form1
+Time: 22.06.2018 23:28:23
+Exception: Обновление невозможно; установлена блокировка.
+Query:System.Collections.Generic.List`1[System.String]
+-----------------------------------------------
+Module: Form1
+Time: 22.06.2018 23:28:25
+Exception: Обновление невозможно; установлена блокировка.
+Query:System.Collections.Generic.List`1[System.String]
+-----------------------------------------------
+Module: Form1
+Time: 22.06.2018 23:28:27
+Exception: Обновление невозможно; установлена блокировка.
+Query:System.Collections.Generic.List`1[System.String]
+-----------------------------------------------
+Module: Form1
+Time: 22.06.2018 23:28:29
+Exception: Обновление невозможно; установлена блокировка.
+Query:System.Collections.Generic.List`1[System.String]

@@ -1,5 +1,6 @@
 ﻿using ServerKeyLogsParser.CommonComponents.AccessDataBase;
 using ServerKeyLogsParser.CommonComponents.Interfaces.Data;
+using ServerKeyLogsParser.CommonComponents.WorkWithFiles.Load;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -29,6 +30,9 @@ namespace ServerKeyLogsParser
                 try
                 {
                     string last_date = "";//записываю для перезаписи файла настроек 
+                    //Так как чтение из файла с проверкой на last_entry является специфической
+                    //функцией, то не стал делать через dataWorker, так как потребуется
+                    //создание большого числа новых классов
                     state.bufOfLines = ReadWriteTextFile.Read_from_file(lahle.path, 
                         lahle.last_entry);
                     //вставил пустую строку, если не сделать, ты вылетит 
@@ -173,8 +177,17 @@ namespace ServerKeyLogsParser
                     configProxyForLoadDataFromBDAndExecute(buf);
                     //перезапись последней даты
                     List<string> new_buf_of_lines = new List<string>();
-                    state.bufOfLines = ReadWriteTextFile.Read_from_file(
-                        Directory.GetCurrentDirectory() + "\\settings.txt");
+                    DataWorker<TextFilesConfigFieldsOnLoad, List<string>> fileLoader = 
+                        new TextFilesDataLoader();
+                    TextFilesConfigFieldsOnLoad configForFileLoader = 
+                        new TextFilesConfigFieldsOnLoad(Directory.GetCurrentDirectory() + "\\settings.txt");
+                    fileLoader.setConfig(configForFileLoader);
+                    if(!fileLoader.connect())
+                    {
+                        //ДОБАВИТЬ ВЫЗОВ ИСКЛЮЧЕНИЯ-НЕТ ДОСТУПА К ФАЙЛУ НАСТРОЕК
+                    }
+                    fileLoader.execute();
+                    state.bufOfLines = fileLoader.getResult();
                     for (int i = 0; i < state.bufOfLines.Count; i++)
                     {
                         if (state.bufOfLines.ElementAt(i) != "")
@@ -275,15 +288,28 @@ namespace ServerKeyLogsParser
 
         public void setConfig(string pathToFileConfig)
         {
-            List<string> buf_of_lines = ReadWriteTextFile.Read_from_file(Directory.GetCurrentDirectory() + "\\settings.txt");
+            DataWorker<TextFilesConfigFieldsOnLoad, List<string>> fileLoader =
+                        new TextFilesDataLoader();
+            TextFilesConfigFieldsOnLoad configForFileLoader =
+                new TextFilesConfigFieldsOnLoad(Directory.GetCurrentDirectory() + "\\settings.txt");
+            fileLoader.setConfig(configForFileLoader);
+            if (!fileLoader.connect())
+            {
+                //ДОБАВИТЬ ВЫЗОВ ИСКЛЮЧЕНИЯ-НЕТ ДОСТУПА К ФАЙЛУ НАСТРОЕК
+            }
+            fileLoader.execute();
+            List<string> buf_of_lines = fileLoader.getResult();
             for (int i = 0; i < buf_of_lines.Count; i++)
             {
                 if (buf_of_lines.ElementAt(i) != "")
                 {
-                    string[] words = buf_of_lines.ElementAt(i).Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                    if (words.Count() > 1)//исключение ошибок неправильного заполнения файла настроек
+                    string[] words = buf_of_lines.ElementAt(i).Split(new char[] { ' ' }, 
+                        StringSplitOptions.RemoveEmptyEntries);
+                    //исключение ошибок неправильного заполнения файла настроек
+                    if (words.Count() > 1)
                     {
-                        if ((words[1] == "path_of_log_file") & (words.Count() > 2))//если это путь к логу
+                        //если это путь к логу
+                        if ((words[1] == "path_of_log_file") & (words.Count() > 2))
                         {
                             LogAndHisLastEntry lahle = new LogAndHisLastEntry();
                             lahle.path = words[0];
@@ -311,15 +337,23 @@ namespace ServerKeyLogsParser
                             state.avevasLogWasDelete = false;
                             LogAndHisLastEntry lahle = new LogAndHisLastEntry();
                             lahle.path = Directory.GetCurrentDirectory() + "\\output.txt";
-                            lahle.last_entry = "1.1.1970_12:0:0";//просто так, чтобы не переделывать парсер для случая пустого времени. Для логов Aveva это не важно и одинаковые строки исключаются другим способом - по запросу к БД.
+                            //просто так, чтобы не переделывать парсер для случая пустого 
+                            //времени. Для логов Aveva это не важно и одинаковые строки 
+                            //исключаются другим способом - по запросу к БД.
+                            lahle.last_entry = "1.1.1970_12:0:0";
                             state.logFiles.Add(lahle);
                             state.avevasLogWasDeleteStr = lahle.path;
 
                             //запуск утилиты создания лога Aveva
-                            string command = @"/C " + Directory.GetCurrentDirectory() + "\\CreateAvevasLog.bat";
+                            string command = @"/C " + Directory.GetCurrentDirectory() + 
+                                "\\CreateAvevasLog.bat";
                             WorkWithWindowsCommandLine wwwcl = new WorkWithWindowsCommandLine();
-                            state.serverHost = wwwcl.Run_command(command);//в переменную server_host записываю значение только чтобы не создавать нувую переменную, здесь просто лежит ответ командной строки
-                            while (File.Exists(Directory.GetCurrentDirectory() + "\\output.txt") == false)//ожидание создания файла
+                            //в переменную server_host записываю значение только чтобы не 
+                            //создавать нувую переменную, здесь просто лежит ответ командной 
+                            //строки
+                            state.serverHost = wwwcl.Run_command(command);
+                            while (File.Exists(Directory.GetCurrentDirectory() + "\\output.txt")
+                                == false)//ожидание создания файла
                             {
 
                             }

@@ -50,6 +50,10 @@
     <Compile Include="CommonComponents\AccessDataBase\MSAccessStorageForData.cs" />
     <Compile Include="CommonComponents\Interfaces\Data\DataWorker.cs" />
     <Compile Include="CommonComponents\Interfaces\Data\StorageForData.cs" />
+    <Compile Include="CommonComponents\WorkWithFiles\Load\TextFilesConfigFieldsOnLoad.cs" />
+    <Compile Include="CommonComponents\WorkWithFiles\Load\TextFilesDataLoader.cs" />
+    <Compile Include="CommonComponents\WorkWithFiles\Save\TextFilesConfigFieldsOnSave.cs" />
+    <Compile Include="CommonComponents\WorkWithFiles\Save\TextFilesDataSaver.cs" />
     <Compile Include="Parsers\AutoDeskParser.cs" />
     <Compile Include="Parsers\AvevaParser.cs" />
     <Compile Include="CommandStore\Basic\Command.cs" />
@@ -102,6 +106,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
