@@ -46,34 +46,34 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AutoDeskParser.cs" />
-    <Compile Include="AvevaParser.cs" />
-    <Compile Include="Command.cs" />
-    <Compile Include="CommandsStore.cs" />
-    <Compile Include="ConcreteCommandStore.cs" />
-    <Compile Include="ConcreteModelsState.cs" />
-    <Compile Include="ConfigModelCommand.cs" />
-    <Compile Include="DataSaver.cs" />
+    <Compile Include="Parsers\AutoDeskParser.cs" />
+    <Compile Include="Parsers\AvevaParser.cs" />
+    <Compile Include="CommandStore\Basic\Command.cs" />
+    <Compile Include="CommandStore\Basic\CommandsStore.cs" />
+    <Compile Include="CommandStore\ConcreteCommandStore.cs" />
+    <Compile Include="ParserComponents\ConcreteModelsState.cs" />
+    <Compile Include="CommandStore\Commands\ConfigModelCommand.cs" />
+    <Compile Include="CommonComponents\DataSaver.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
-    <Compile Include="LogAndHisLastEntry.cs" />
-    <Compile Include="LogHandler.cs" />
-    <Compile Include="LogsRows.cs" />
-    <Compile Include="Model.cs" />
-    <Compile Include="ModelsState.cs" />
-    <Compile Include="MSAccessDataSaver.cs" />
-    <Compile Include="MSAccessProxy.cs" />
-    <Compile Include="ParseCommand.cs" />
-    <Compile Include="ParseModel.cs" />
+    <Compile Include="ParserComponents\MediumStores\LogAndHisLastEntry.cs" />
+    <Compile Include="CommonComponents\LogHandler.cs" />
+    <Compile Include="ParserComponents\MediumStores\LogsRows.cs" />
+    <Compile Include="CommonComponents\Model.cs" />
+    <Compile Include="CommonComponents\ModelsState.cs" />
+    <Compile Include="DataBase\MSAccessDataSaver.cs" />
+    <Compile Include="DataBase\MSAccessProxy.cs" />
+    <Compile Include="CommandStore\Commands\ParseCommand.cs" />
+    <Compile Include="ParserComponents\ParseModel.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReadWriteTextFile.cs" />
-    <Compile Include="ResultTableRows.cs" />
-    <Compile Include="WorkWithWindowsCommandLine.cs" />
+    <Compile Include="CommonComponents\WorkWithFiles\ReadWriteTextFile.cs" />
+    <Compile Include="ParserComponents\MediumStores\ResultTableRows.cs" />
+    <Compile Include="CommonComponents\WorkWithWindowsCommandLine\WorkWithWindowsCommandLine.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>

@@ -7,3 +7,6 @@ D:\Files\MsVisualProjects\ServerKeyLogsParser\ServerKeyLogsParser\obj\Release\Se
 D:\Files\MsVisualProjects\ServerKeyLogsParser\ServerKeyLogsParser\obj\Release\ServerKeyLogsParser.csproj.GenerateResource.Cache
 D:\Files\MsVisualProjects\ServerKeyLogsParser\ServerKeyLogsParser\obj\Release\ServerKeyLogsParser.exe
 D:\Files\MsVisualProjects\ServerKeyLogsParser\ServerKeyLogsParser\obj\Release\ServerKeyLogsParser.pdb
+D:\Files\MsVisualProjects\Diplom\Parser\ServerKeyLogsParser\bin\Release\ServerKeyLogsParser.exe.config
+D:\Files\MsVisualProjects\Diplom\Parser\ServerKeyLogsParser\obj\Release\ServerKeyLogsParser.exe
+D:\Files\MsVisualProjects\Diplom\Parser\ServerKeyLogsParser\obj\Release\ServerKeyLogsParser.pdb

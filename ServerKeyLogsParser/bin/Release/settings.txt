@@ -1,6 +1,6 @@
 ﻿DESKTOP-CG8MSKG server's_host
 D:\Files\MsVisualProjects\ServerKeyLogsParser\testlogs\Database3.accdb path_of_data_base
-D:\Files\MsVisualProjects\ServerKeyLogsParser\testlogs\2016_BDS path_of_log_file 27.5.2017_9:38:20
-D:\Files\MsVisualProjects\ServerKeyLogsParser\testlogs\AECC.log path_of_log_file 27.5.2017_9:31:49
+D:\Files\MsVisualProjects\ServerKeyLogsParser\testlogs\2016_BDS path_of_log_file 27.5.2007_9:38:20
+D:\Files\MsVisualProjects\ServerKeyLogsParser\testlogs\AECC.log path_of_log_file 27.5.2007_9:31:49
 D:\Files\MsVisualProjects\ServerKeyLogsParser\testlogs\ PathAvevasParser
 Information table
