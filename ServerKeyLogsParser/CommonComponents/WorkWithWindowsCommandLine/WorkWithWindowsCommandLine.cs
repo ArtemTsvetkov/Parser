@@ -37,10 +37,17 @@ namespace ServerKeyLogsParser
 При неверном вводе команды модуль вернет пустую строку
 Кириллица отображается некорректно
 Примеры:
-    @"/C SCHTASKS /Create /SC MINUTE /MO 1 /TR calc.exe h/TN myhobbi" - это неверный формат и при выполнении кода венутся пустое значение, хотя консоль выдает ошибку
-    @"/C SCHTASKS /Create /SC MINUTE /MO 1 /TR calc.exe /TN myhobbi" - это правильный формат и при выполнении кода вернется непустое значение, но прочитать
-    его не удается, так как есть проблемы с кодировкой. Команда запускает калькулятор каждую минуту
-    @"/C SCHTASKS /Create /SC MINUTE /MO 1 /TR D:\Games\World_of_Tanks\WoTLauncher.exe /TN myhobbi" - команда запускает игру каждую минуту
+    @"/C SCHTASKS /Create /SC MINUTE /MO 1 /TR calc.exe h/TN myhobbi" - это 
+    неверный формат и при выполнении кода венутся пустое значение, хотя консоль выдает ошибку
+    
+    @"/C SCHTASKS /Create /SC MINUTE /MO 1 /TR calc.exe /TN myhobbi" - это 
+    правильный формат и при выполнении кода вернется непустое значение, но прочитать
+    его не удается, так как есть проблемы с кодировкой. Команда запускает калькулятор 
+    каждую минуту
+    
+    @"/C SCHTASKS /Create /SC MINUTE /MO 1 /TR D:\Games\World_of_Tanks\WoTLauncher.exe /TN myhobbi"
+    - команда запускает игру каждую минуту
+
     @"/C hostname"- команда сообщает хост компьютера
     @"/C SCHTASKS  /Query" - отобразит все задачи
     @"/C SCHTASKS /Delete /TN myhobbi" - удалит задание с именем myhobbi из планировщика заданий

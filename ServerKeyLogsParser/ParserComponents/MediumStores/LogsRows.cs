@@ -16,7 +16,8 @@ namespace ServerKeyLogsParser
         public string servers_host;//хост сервера
 
 
-        public LogsRows(DateTime date, string user, string host, string vendor, string po, string servers_host)
+        public LogsRows(DateTime date, string user, string host, string vendor, 
+            string po, string servers_host)
         {
             this.date = date;
             this.user = user;
