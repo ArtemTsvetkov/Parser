@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ServerKeyLogsParser.CommonComponents.AccessDataBase;
+using ServerKeyLogsParser.CommonComponents.Interfaces.Data;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -44,9 +46,7 @@ namespace ServerKeyLogsParser
                     //запись ответа в БД
                     MSAccessProxy accessProxy = new MSAccessProxy();
                     //получение значения id
-                    accessProxy.setConfig(state.pathOfDataBase, "SELECT COUNT(*) FROM " + state.tableOfDataBase);
-                    DataSet ds = accessProxy.execute();
-                    //DataSet ds = wwmsa.Run_query(state.pathOfDataBase, "SELECT COUNT(*) FROM " + state.tableOfDataBase);
+                    DataSet ds = configProxyForLoadDataFromBDAndExecute("SELECT COUNT(*) FROM " + state.tableOfDataBase);
                     int id = int.Parse(ds.Tables[0].Rows[0][0].ToString());
                     //формирование массива запросов 
                     List<string> buf = new List<string>();
@@ -54,15 +54,11 @@ namespace ServerKeyLogsParser
                     {
                         if (state.result.ElementAt(i).vendor == "Aveva")//если это логи aveva, то нужно каждый раз проверять, есть ли такие же записи в бд
                         {
-                            accessProxy.setConfig(state.pathOfDataBase, "SELECT * from " + state.tableOfDataBase + " where server_host='" + state.result.ElementAt(i).servers_host + "' and vendor='" + state.result.ElementAt(i).vendor + "' and user_name='" + state.result.ElementAt(i).user + "' and user_host='" + state.result.ElementAt(i).host + "' and year_in=" + state.result.ElementAt(i).star_time.Year + " and month_in=" + state.result.ElementAt(i).star_time.Month + " and day_in=" + state.result.ElementAt(i).star_time.Day + " and hours_in=" + state.result.ElementAt(i).star_time.Hour + " and minute_in=" + state.result.ElementAt(i).star_time.Minute + " and second_in=" + state.result.ElementAt(i).star_time.Second + "");
-                            ds = accessProxy.execute();
-                            //ds = wwmsa.Run_query();
+                            ds = configProxyForLoadDataFromBDAndExecute("SELECT * from " + state.tableOfDataBase + " where server_host = '" + state.result.ElementAt(i).servers_host + "' and vendor = '" + state.result.ElementAt(i).vendor + "' and user_name = '" + state.result.ElementAt(i).user + "' and user_host = '" + state.result.ElementAt(i).host + "' and year_in = " + state.result.ElementAt(i).star_time.Year + " and month_in = " + state.result.ElementAt(i).star_time.Month + " and day_in = " + state.result.ElementAt(i).star_time.Day + " and hours_in = " + state.result.ElementAt(i).star_time.Hour + " and minute_in = " + state.result.ElementAt(i).star_time.Minute + " and second_in = " + state.result.ElementAt(i).star_time.Second + "");
                             int count = ds.Tables[0].Rows.Count;
                             if (count == 0)//значит нет такой строки и ее можно записать
                             {
-                                accessProxy.setConfig(state.pathOfDataBase, "INSERT INTO " + state.tableOfDataBase + " VALUES(" + id + ",'" + state.serverHost + "','" + state.result.ElementAt(i).vendor + "','" + state.result.ElementAt(i).po + "','" + state.result.ElementAt(i).user + "','" + state.result.ElementAt(i).host + "'," + state.result.ElementAt(i).star_time.Year + "," + state.result.ElementAt(i).star_time.Month + "," + state.result.ElementAt(i).star_time.Day + "," + state.result.ElementAt(i).star_time.Hour + "," + state.result.ElementAt(i).star_time.Minute + "," + state.result.ElementAt(i).star_time.Second + "," + state.result.ElementAt(i).finish_time.Year + "," + state.result.ElementAt(i).finish_time.Month + "," + state.result.ElementAt(i).finish_time.Day + "," + state.result.ElementAt(i).finish_time.Hour + "," + state.result.ElementAt(i).finish_time.Minute + "," + state.result.ElementAt(i).finish_time.Second + ")");
-                                accessProxy.execute();
-                                //wwmsa.Run_query_without_answer(state.pathOfDataBase, "INSERT INTO " + state.tableOfDataBase + " VALUES(" + id + ",'" + state.serverHost + "','" + state.result.ElementAt(i).vendor + "','" + state.result.ElementAt(i).po + "','" + state.result.ElementAt(i).user + "','" + state.result.ElementAt(i).host + "'," + state.result.ElementAt(i).star_time.Year + "," + state.result.ElementAt(i).star_time.Month + "," + state.result.ElementAt(i).star_time.Day + "," + state.result.ElementAt(i).star_time.Hour + "," + state.result.ElementAt(i).star_time.Minute + "," + state.result.ElementAt(i).star_time.Second + "," + state.result.ElementAt(i).finish_time.Year + "," + state.result.ElementAt(i).finish_time.Month + "," + state.result.ElementAt(i).finish_time.Day + "," + state.result.ElementAt(i).finish_time.Hour + "," + state.result.ElementAt(i).finish_time.Minute + "," + state.result.ElementAt(i).finish_time.Second + ")");
+                                configProxyForLoadDataFromBDAndExecute("INSERT INTO " + state.tableOfDataBase + " VALUES(" + id + ",'" + state.serverHost + "','" + state.result.ElementAt(i).vendor + "','" + state.result.ElementAt(i).po + "','" + state.result.ElementAt(i).user + "','" + state.result.ElementAt(i).host + "'," + state.result.ElementAt(i).star_time.Year + "," + state.result.ElementAt(i).star_time.Month + "," + state.result.ElementAt(i).star_time.Day + "," + state.result.ElementAt(i).star_time.Hour + "," + state.result.ElementAt(i).star_time.Minute + "," + state.result.ElementAt(i).star_time.Second + "," + state.result.ElementAt(i).finish_time.Year + "," + state.result.ElementAt(i).finish_time.Month + "," + state.result.ElementAt(i).finish_time.Day + "," + state.result.ElementAt(i).finish_time.Hour + "," + state.result.ElementAt(i).finish_time.Minute + "," + state.result.ElementAt(i).finish_time.Second + ")");
                                 id++;
                             }
                             continue;
@@ -85,9 +81,7 @@ namespace ServerKeyLogsParser
                             id++;
                         }
                     }
-                    accessProxy.setConfig(state.pathOfDataBase, buf);
-                    accessProxy.execute();
-                    //wwmsa.Run_query_without_answer_buf(state.pathOfDataBase, buf);
+                    configProxyForLoadDataFromBDAndExecute(buf);
                     //перезапись последней даты
                     List<string> new_buf_of_lines = new List<string>();
                     state.bufOfLines = ReadWriteTextFile.Read_from_file(Directory.GetCurrentDirectory() + "\\settings.txt");
@@ -156,6 +150,30 @@ namespace ServerKeyLogsParser
         public void recoverySelf(ModelsState state)
         {
             this.state = (ConcreteModelsState)state;
+        }
+
+        private DataSet configProxyForLoadDataFromBDAndExecute(string query)
+        {
+            DataWorker<MSAccessStateFields, DataSet> accessProxy = new MSAccessProxy();
+            List<string> list = new List<string>();
+            list.Add(query);
+            MSAccessStateFields configProxy =
+                new MSAccessStateFields(state.pathOfDataBase, list);
+            accessProxy.setConfig(configProxy);
+            accessProxy.execute();
+            list.Clear();
+            return accessProxy.getResult();
+        }
+
+        private DataSet configProxyForLoadDataFromBDAndExecute(List<string> list)
+        {
+            DataWorker<MSAccessStateFields, DataSet> accessProxy = new MSAccessProxy();
+            MSAccessStateFields configProxy =
+                new MSAccessStateFields(state.pathOfDataBase, list);
+            accessProxy.setConfig(configProxy);
+            accessProxy.execute();
+            list.Clear();
+            return accessProxy.getResult();
         }
 
         public void setConfig(string pathToFileConfig)

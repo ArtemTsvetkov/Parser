@@ -7,67 +7,57 @@ using System.Data.OleDb;
 using System.Data;
 using System.Windows.Forms;
 using System.IO;
+using ServerKeyLogsParser.CommonComponents.AccessDataBase;
+using ServerKeyLogsParser.CommonComponents.Interfaces.Data;
 
 namespace ServerKeyLogsParser
 {
-    class MSAccessDataSaver : DataSaver
+    class MSAccessDataSaver : DataWorker<MSAccessStateFields, DataSet>
     {
-        private string host;//пример хоста:C:\\Users\\Artem\\Documents\\Database3.accdb
-        private string query;//Для выполненения 1 запроса
-        private List<string> querys;//Для выполнения сразу нескольких запросов
+        private MSAccessStateFields config;
+        private DataSet resultStorage;
 
-        public DataSet execute()
+        public void execute()
         {
-            List<string> currentQuerys = new List<string>();
-            if(query == null)
-            {
-                currentQuerys = querys;
-            }
-            else
-            {
-                currentQuerys.Add(query);
-            }
-
-
-            string connStr = String.Format("Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + host + ";Persist Security Info=True;");
-            return runQuery(connStr, currentQuerys);
+            string connStr = string.Format("Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" +
+                config.getHost() + ";Persist Security Info=True;");
+            resultStorage = runQuery(connStr, config.getQuery());
         }
 
-        public bool connect()//Тестирует возможность подключения к БД, в этом классе(он не прокси) всегда есть
-        {                    //подключение
+        //Тестирует возможность подключения к БД, в этом классе(он не прокси) всегда есть
+        //подключение
+        public bool connect()
+        {
             return true;
         }
 
-        public void setConfig(string host, string query)
+        public void setConfig(MSAccessStateFields config)
         {
-            this.host = host;
-            this.query = query;
-            this.querys = null;
+            this.config = config;
         }
 
-        public void setConfig(string host, List<string> querys)
+        //функция поиска названия таблицы базы данных
+        private string selectTableNameFromQuery(string query)
         {
-            this.host = host;
-            this.querys = querys;
-            this.query = null;
-        }
-
-        private string selectTableNameFromQuery(string query)//функция поиска названия таблицы базы данных
-        {
-            String[] buf_of_substrings = query.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            if (buf_of_substrings[0].Equals("SELECT", StringComparison.CurrentCultureIgnoreCase) == true)
+            string[] buf_of_substrings = query.Split(new char[] { ' ' }, StringSplitOptions.
+                RemoveEmptyEntries);
+            if (buf_of_substrings[0].Equals("SELECT", StringComparison.CurrentCultureIgnoreCase) ==
+                true)
             {
                 return buf_of_substrings[3];
             }
-            if (buf_of_substrings[0].Equals("INSERT", StringComparison.CurrentCultureIgnoreCase) == true)
+            if (buf_of_substrings[0].Equals("INSERT", StringComparison.CurrentCultureIgnoreCase) ==
+                true)
             {
                 return buf_of_substrings[2];
             }
-            if (buf_of_substrings[0].Equals("UPDATE", StringComparison.CurrentCultureIgnoreCase) == true)
+            if (buf_of_substrings[0].Equals("UPDATE", StringComparison.CurrentCultureIgnoreCase) ==
+                true)
             {
                 return buf_of_substrings[1];
             }
-            if (buf_of_substrings[0].Equals("DELETE", StringComparison.CurrentCultureIgnoreCase) == true)
+            if (buf_of_substrings[0].Equals("DELETE", StringComparison.CurrentCultureIgnoreCase) ==
+                true)
             {
                 return buf_of_substrings[2];
             }
@@ -101,7 +91,8 @@ namespace ServerKeyLogsParser
                         buf.Add("Time: " + thisDay.ToString());
                         buf.Add("Exception: " + ex.Message);
                         buf.Add("Query:" + query);
-                        ReadWriteTextFile.Write_to_file(buf, Directory.GetCurrentDirectory() + "\\Errors.txt", 0);
+                        ReadWriteTextFile.Write_to_file(buf, Directory.GetCurrentDirectory() +
+                            "\\Errors.txt", 0);
                     }
                 }
                 return dataSet;
@@ -115,13 +106,19 @@ namespace ServerKeyLogsParser
                 DateTime thisDay = DateTime.Now;
                 buf.Add("Time: " + thisDay.ToString());
                 buf.Add("Exception: " + ex.Message);
-                ReadWriteTextFile.Write_to_file(buf, Directory.GetCurrentDirectory() + "\\Errors.txt", 0);
+                ReadWriteTextFile.Write_to_file(buf, Directory.GetCurrentDirectory() + "\\Errors.txt",
+                    0);
                 return null;
             }
             finally
             {
                 if (conn != null) conn.Close();
             }
+        }
+
+        public DataSet getResult()
+        {
+            return resultStorage;
         }
     }
 }

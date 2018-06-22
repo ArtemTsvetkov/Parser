@@ -46,6 +46,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommonComponents\AccessDataBase\MSAccessStateFields.cs" />
+    <Compile Include="CommonComponents\AccessDataBase\MSAccessStorageForData.cs" />
+    <Compile Include="CommonComponents\Interfaces\Data\DataWorker.cs" />
+    <Compile Include="CommonComponents\Interfaces\Data\StorageForData.cs" />
     <Compile Include="Parsers\AutoDeskParser.cs" />
     <Compile Include="Parsers\AvevaParser.cs" />
     <Compile Include="CommandStore\Basic\Command.cs" />
@@ -53,7 +57,6 @@
     <Compile Include="CommandStore\ConcreteCommandStore.cs" />
     <Compile Include="ParserComponents\ConcreteModelsState.cs" />
     <Compile Include="CommandStore\Commands\ConfigModelCommand.cs" />
-    <Compile Include="CommonComponents\DataSaver.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -61,12 +64,12 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="ParserComponents\MediumStores\LogAndHisLastEntry.cs" />
-    <Compile Include="CommonComponents\LogHandler.cs" />
+    <Compile Include="CommonComponents\Interfaces\LogHandler.cs" />
     <Compile Include="ParserComponents\MediumStores\LogsRows.cs" />
-    <Compile Include="CommonComponents\Model.cs" />
-    <Compile Include="CommonComponents\ModelsState.cs" />
-    <Compile Include="DataBase\MSAccessDataSaver.cs" />
-    <Compile Include="DataBase\MSAccessProxy.cs" />
+    <Compile Include="CommonComponents\Interfaces\Model.cs" />
+    <Compile Include="CommonComponents\Interfaces\ModelsState.cs" />
+    <Compile Include="CommonComponents\AccessDataBase\MSAccessDataSaver.cs" />
+    <Compile Include="CommonComponents\AccessDataBase\MSAccessProxy.cs" />
     <Compile Include="CommandStore\Commands\ParseCommand.cs" />
     <Compile Include="ParserComponents\ParseModel.cs" />
     <Compile Include="Program.cs" />
