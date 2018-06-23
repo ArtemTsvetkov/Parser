@@ -47,15 +47,21 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommonComponents\AccessDataBase\MSAccessStateFields.cs" />
-    <Compile Include="CommonComponents\AccessDataBase\MSAccessStorageForData.cs" />
+    <Compile Include="CommonComponents\DataConverters\Basic\DataConverter.cs" />
+    <Compile Include="CommonComponents\DataConverters\ConverterSingleColumnFromDataSet.cs" />
     <Compile Include="CommonComponents\Interfaces\Data\DataWorker.cs" />
     <Compile Include="CommonComponents\Interfaces\Data\StorageForData.cs" />
+    <Compile Include="CommonComponents\MsSQLServerDB\MsSQLServerDataWorker.cs" />
+    <Compile Include="CommonComponents\MsSQLServerDB\MsSQLServerProxy.cs" />
+    <Compile Include="CommonComponents\MsSQLServerDB\MsSQLServerStateFields.cs" />
     <Compile Include="CommonComponents\WorkWithFiles\Load\TextFilesConfigFieldsOnLoad.cs" />
     <Compile Include="CommonComponents\WorkWithFiles\Load\TextFilesDataLoader.cs" />
     <Compile Include="CommonComponents\WorkWithFiles\Save\TextFilesConfigFieldsOnSave.cs" />
     <Compile Include="CommonComponents\WorkWithFiles\Save\TextFilesDataSaver.cs" />
-    <Compile Include="Parsers\AutoDeskParser.cs" />
-    <Compile Include="Parsers\AvevaParser.cs" />
+    <Compile Include="ParserComponents\DataConverters\MappingIDWithNameConverter.cs" />
+    <Compile Include="ParserComponents\MediumStores\MappingIdWithName.cs" />
+    <Compile Include="ParserComponents\Parsers\AutoDeskParser.cs" />
+    <Compile Include="ParserComponents\Parsers\AvevaParser.cs" />
     <Compile Include="CommandStore\Basic\Command.cs" />
     <Compile Include="CommandStore\Basic\CommandsStore.cs" />
     <Compile Include="CommandStore\ConcreteCommandStore.cs" />

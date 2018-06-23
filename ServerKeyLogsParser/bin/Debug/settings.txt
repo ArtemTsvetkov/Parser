@@ -1,4 +1,4 @@
 ﻿DESKTOP-CG8MSKG server's_host
 D:\Files\MsVisualProjects\Diplom\Логи\testlogs\Database3.accdb path_of_data_base
-D:\Files\MsVisualProjects\Diplom\Логи\testlogs\2016_BDS path_of_log_file 27.6.2017_9:38:20
+D:\Files\MsVisualProjects\Diplom\Логи\testlogs\2016_BDS path_of_log_file 27.6.2007_9:38:20
 Information table

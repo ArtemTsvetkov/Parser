@@ -1,6 +1,9 @@
 ﻿using ServerKeyLogsParser.CommonComponents.AccessDataBase;
+using ServerKeyLogsParser.CommonComponents.DataConverters;
 using ServerKeyLogsParser.CommonComponents.Interfaces.Data;
+using ServerKeyLogsParser.CommonComponents.MsSQLServerDB;
 using ServerKeyLogsParser.CommonComponents.WorkWithFiles.Load;
+using ServerKeyLogsParser.ParserComponents.DataConverters;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -22,6 +25,11 @@ namespace ServerKeyLogsParser
 
         public void parseFiles()
         {
+            //Получение id пользователей
+            List<MappingIdWithName> usersInfo = getUsersIDAndNames();
+            //Получение id программного обеспечения
+            List<MappingIdWithName> softwareInfo = getSoftwaresIdAndNames();
+
             for (int h = 0; h < state.logFiles.Count; h++)//последовательно разбираем файлы
             {
                 //читаем лог-файл
@@ -33,101 +41,97 @@ namespace ServerKeyLogsParser
                     //Так как чтение из файла с проверкой на last_entry является специфической
                     //функцией, то не стал делать через dataWorker, так как потребуется
                     //создание большого числа новых классов
-                    state.bufOfLines = ReadWriteTextFile.Read_from_file(lahle.path, 
+                    state.bufOfLines = ReadWriteTextFile.Read_from_file(lahle.path,
                         lahle.last_entry);
                     //вставил пустую строку, если не сделать, ты вылетит 
                     //исключение, если все строки проверяемого файла по времени не 
                     //попадают в рассмотрение 
                     //парсим лог-файл
-                    state.bufOfLines.Add("");                  
+                    state.bufOfLines.Add("");
                     if (state.bufOfLines.ElementAt(0) == "Aveva")
                     {
-                        state.result = state.aveva_parser.go_parsing(state.bufOfLines, 
+                        state.result = state.aveva_parser.go_parsing(state.bufOfLines,
                             state.serverHost);
                         File.Delete(state.logFiles.ElementAt(h).path);
                         state.avevasLogWasDelete = true;
                     }
                     else
                     {
-                        state.result = state.autodesk_parser.go_parsing(state.bufOfLines, 
+                        state.result = state.autodesk_parser.go_parsing(state.bufOfLines,
                             state.serverHost, ref last_date);
                     }
 
-                    //запись ответа в БД
-                    MSAccessProxy accessProxy = new MSAccessProxy();
-                    //получение значения id
-                    DataSet ds = configProxyForLoadDataFromBDAndExecute(
-                        "SELECT COUNT(*) FROM " + state.tableOfDataBase);
-                    int id = int.Parse(ds.Tables[0].Rows[0][0].ToString());
                     //формирование массива запросов 
                     List<string> buf = new List<string>();
                     for (int i = 0; i < state.result.Count; i++)
                     {
+                        int userID;
+                        int softwareID;
+                        //Получение id пользователя
+                        try
+                        {
+                            userID = checkExistUserInDB(
+                                usersInfo, state.result.ElementAt(i).user,
+                                state.result.ElementAt(i).host);
+                        }
+                        catch (Exception ex)
+                        {
+                            userID = addUserIntoDB(state.result.ElementAt(i).user,
+                                state.result.ElementAt(i).host);
+                        }
+                        //Получение id ПО
+                        softwareID = checkExistSoftWareInDB(
+                            usersInfo, state.result.ElementAt(i).po);
                         //если это логи aveva, то нужно каждый раз проверять, есть ли 
                         //такие же записи в бд
                         if (state.result.ElementAt(i).vendor == "Aveva")
                         {
-                            ds = configProxyForLoadDataFromBDAndExecute(
-                                "SELECT * from " + state.tableOfDataBase + 
-                                " where server_host = '" + 
-                                state.result.ElementAt(i).servers_host + 
-                                "' and vendor = '" + state.result.ElementAt(i).vendor + 
-                                "' and user_name = '" + state.result.ElementAt(i).user + 
-                                "' and user_host = '" + state.result.ElementAt(i).host + 
-                                "' and year_in = " + state.result.ElementAt(i).star_time.Year + 
-                                " and month_in = " + state.result.ElementAt(i).
-                                star_time.Month + " and day_in = " + 
-                                state.result.ElementAt(i).star_time.Day + 
-                                " and hours_in = " + state.result.ElementAt(i).star_time.Hour + 
-                                " and minute_in = " + state.result.ElementAt(i).
-                                star_time.Minute + " and second_in = " + state.result.
-                                ElementAt(i).star_time.Second + "");
+                            string query = "SELECT COUNT(*) FROM History WHERE UserID=" + userID +
+                                " AND SoftwareID = " + softwareID + " AND DateIN = '" +
+                                state.result.ElementAt(i).star_time.Date.ToString("MM/dd/yyyy") + 
+                                "' AND DateExit = '" +
+                                state.result.ElementAt(i).finish_time.Date.ToString("MM/dd/yyyy") + 
+                                "' AND TimeIn = '" +
+                                state.result.ElementAt(i).star_time.Date.ToLongTimeString() + 
+                                "' AND TimeExit='" +
+                                state.result.ElementAt(i).finish_time.Date.ToLongTimeString() + "'";
+                            DataSet ds = configProxyForLoadDataFromBDAndExecute(query);
                             int count = ds.Tables[0].Rows.Count;
+
+
+
                             if (count == 0)//значит нет такой строки и ее можно записать
                             {
-                                configProxyForLoadDataFromBDAndExecute(
-                                    "INSERT INTO " + state.tableOfDataBase + 
-                                    " VALUES(" + id + ",'" + state.serverHost + 
-                                    "','" + state.result.ElementAt(i).vendor + 
-                                    "','" + state.result.ElementAt(i).po + 
-                                    "','" + state.result.ElementAt(i).user + 
-                                    "','" + state.result.ElementAt(i).host + 
-                                    "'," + state.result.ElementAt(i).star_time.Year + 
-                                    "," + state.result.ElementAt(i).star_time.Month + 
-                                    "," + state.result.ElementAt(i).star_time.Day + 
-                                    "," + state.result.ElementAt(i).star_time.Hour + 
-                                    "," + state.result.ElementAt(i).star_time.Minute +
-                                    "," + state.result.ElementAt(i).star_time.Second + 
-                                    "," + state.result.ElementAt(i).finish_time.Year + 
-                                    "," + state.result.ElementAt(i).finish_time.Month +
-                                    "," + state.result.ElementAt(i).finish_time.Day + 
-                                    "," + state.result.ElementAt(i).finish_time.Hour + 
-                                    "," + state.result.ElementAt(i).finish_time.Minute + 
-                                    "," + state.result.ElementAt(i).finish_time.Second + ")");
-                                id++;
+                                string newLine = "INSERT INTO History VALUES(" + userID + "," + 
+                                    softwareID + ",'" +
+                                    state.result.ElementAt(i).star_time.Date.ToString("MM/dd/yyyy") + 
+                                    "','" +
+                                    state.result.ElementAt(i).finish_time.Date.
+                                    ToString("MM/dd/yyyy") + "','" +
+                                    state.result.ElementAt(i).star_time.Date.ToLongTimeString() + 
+                                    "','" +
+                                    state.result.ElementAt(i).finish_time.Date.ToLongTimeString() + 
+                                    "')";
+                                configProxyForLoadDataFromBDAndExecute(newLine);
                             }
                             continue;
                         }
+                        //Иначе это не aveva
                         //если дата не известна, то вместо нее везде стоят единицы, но чтобы 
                         //все не проверять, достаточно проверить толлько год, он при 
                         //известной дате точно не может быть равен 1
                         if (state.result.ElementAt(i).star_time.Year == 1)
                         {
-                            buf.Add("INSERT INTO " + state.tableOfDataBase + 
-                                " VALUES(" + id + ",'" + state.serverHost + "','" + 
-                                state.result.ElementAt(i).vendor + "','" + 
-                                state.result.ElementAt(i).po + "','" + 
-                                state.result.ElementAt(i).user + "','" + 
-                                state.result.ElementAt(i).host + "'," + 
-                                "null" + "," + "null" + "," + "null" + "," + 
-                                "null" + "," + "null" + "," + "null" + "," + 
-                                state.result.ElementAt(i).finish_time.Year + 
-                                "," + state.result.ElementAt(i).finish_time.Month + 
-                                "," + state.result.ElementAt(i).finish_time.Day + 
-                                "," + state.result.ElementAt(i).finish_time.Hour + 
-                                "," + state.result.ElementAt(i).finish_time.Minute + 
-                                "," + state.result.ElementAt(i).finish_time.Second + ")");
-                            id++;
+                            string newLine = "INSERT INTO History VALUES(" + userID + "," +
+                                    softwareID + "," +
+                                    "null" +
+                                    ",'" +
+                                    state.result.ElementAt(i).finish_time.Date.ToString("MM/dd/yyyy") +
+                                    "'," +
+                                    "null" +
+                                    ",'" +
+                                    state.result.ElementAt(i).finish_time.Date.ToLongTimeString() + "')";
+                            buf.Add(newLine);
                             continue;
                         }
                         //если дата не известна, то вместо нее везде стоят единицы, но 
@@ -135,54 +139,43 @@ namespace ServerKeyLogsParser
                         //известной дате точно не может быть равен 1
                         if (state.result.ElementAt(i).finish_time.Year == 1)
                         {
-                            buf.Add("INSERT INTO " + state.tableOfDataBase + 
-                                " VALUES(" + id + ",'" + state.serverHost + 
-                                "','" + state.result.ElementAt(i).vendor + 
-                                "','" + state.result.ElementAt(i).po + "','" + 
-                                state.result.ElementAt(i).user + "','" + state.result.
-                                ElementAt(i).host + "'," + state.result.ElementAt(i).
-                                star_time.Year + "," + state.result.ElementAt(i).star_time.
-                                Month + "," + state.result.ElementAt(i).star_time.Day + 
-                                "," + state.result.ElementAt(i).star_time.Hour + "," + 
-                                state.result.ElementAt(i).star_time.Minute + "," + 
-                                state.result.ElementAt(i).star_time.Second + "," + 
-                                "null" + "," + "null" + "," + "null" + "," + "null" + 
-                                "," + "null" + "," + "null" + ")");
-                            id++;
+                            string newLine = "INSERT INTO History VALUES(" + userID + "," +
+                                    softwareID + ",'" +
+                                    state.result.ElementAt(i).star_time.Date.ToString("MM/dd/yyyy") +
+                                    "'," +
+                                    "null" +
+                                    ",'" +
+                                    state.result.ElementAt(i).star_time.Date.ToLongTimeString() +
+                                    "'," +
+                                    "null" + ")";
+                            buf.Add(newLine);
                             continue;
                         }
-                        if ((state.result.ElementAt(i).finish_time.Year != 1) & 
+                        if ((state.result.ElementAt(i).finish_time.Year != 1) &
                             (state.result.ElementAt(i).star_time.Year != 1))
                         {
-                            buf.Add("INSERT INTO " + state.tableOfDataBase + " VALUES(" + 
-                                id + ",'" + state.serverHost + "','" + state.result.
-                                ElementAt(i).vendor + "','" + state.result.ElementAt(i).
-                                po + "','" + state.result.ElementAt(i).user + "','" + 
-                                state.result.ElementAt(i).host + "'," + state.result.
-                                ElementAt(i).star_time.Year + "," + state.result.
-                                ElementAt(i).star_time.Month + "," + state.result.
-                                ElementAt(i).star_time.Day + "," + state.result.
-                                ElementAt(i).star_time.Hour + "," + state.result.
-                                ElementAt(i).star_time.Minute + "," + state.result.
-                                ElementAt(i).star_time.Second + "," + state.result.
-                                ElementAt(i).finish_time.Year + "," + state.result.
-                                ElementAt(i).finish_time.Month + "," + state.result.
-                                ElementAt(i).finish_time.Day + "," + state.result.
-                                ElementAt(i).finish_time.Hour + "," + state.result.
-                                ElementAt(i).finish_time.Minute + "," + state.result.
-                                ElementAt(i).finish_time.Second + ")");
-                            id++;
+                            string newLine = "INSERT INTO History VALUES(" + userID + "," +
+                                    softwareID + ",'" +
+                                    state.result.ElementAt(i).star_time.Date.ToString("MM/dd/yyyy") +
+                                    "','" +
+                                    state.result.ElementAt(i).finish_time.Date.
+                                    ToString("MM/dd/yyyy") + "','" +
+                                    state.result.ElementAt(i).star_time.Date.ToLongTimeString() +
+                                    "','" +
+                                    state.result.ElementAt(i).finish_time.Date.ToLongTimeString() +
+                                    "')";
+                            buf.Add(newLine);
                         }
                     }
                     configProxyForLoadDataFromBDAndExecute(buf);
                     //перезапись последней даты
                     List<string> new_buf_of_lines = new List<string>();
-                    DataWorker<TextFilesConfigFieldsOnLoad, List<string>> fileLoader = 
+                    DataWorker<TextFilesConfigFieldsOnLoad, List<string>> fileLoader =
                         new TextFilesDataLoader();
-                    TextFilesConfigFieldsOnLoad configForFileLoader = 
+                    TextFilesConfigFieldsOnLoad configForFileLoader =
                         new TextFilesConfigFieldsOnLoad(Directory.GetCurrentDirectory() + "\\settings.txt");
                     fileLoader.setConfig(configForFileLoader);
-                    if(!fileLoader.connect())
+                    if (!fileLoader.connect())
                     {
                         //ДОБАВИТЬ ВЫЗОВ ИСКЛЮЧЕНИЯ-НЕТ ДОСТУПА К ФАЙЛУ НАСТРОЕК
                     }
@@ -224,7 +217,7 @@ namespace ServerKeyLogsParser
                             }
                         }
                     }
-                    ReadWriteTextFile.Write_to_file(new_buf_of_lines, 
+                    ReadWriteTextFile.Write_to_file(new_buf_of_lines,
                         (Directory.GetCurrentDirectory() + "\\settings.txt"), 1);
                 }
                 catch (Exception ex)
@@ -236,7 +229,7 @@ namespace ServerKeyLogsParser
                     buf.Add("Time: " + thisDay.ToString());
                     buf.Add("Exception: " + ex.Message);
                     buf.Add("Rows:");
-                    ReadWriteTextFile.Write_to_file(buf, Directory.GetCurrentDirectory() + 
+                    ReadWriteTextFile.Write_to_file(buf, Directory.GetCurrentDirectory() +
                         "\\Errors.txt", 0);
                     ReadWriteTextFile.Write_to_file(state.bufOfLines, Directory.
                         GetCurrentDirectory() + "\\Errors.txt", 0);
@@ -249,12 +242,71 @@ namespace ServerKeyLogsParser
                 buf.Add("Module: Form1");
                 DateTime thisDay = DateTime.Now;
                 buf.Add("Time: " + thisDay.ToString());
-                buf.Add("Ошибка: файл " + state.avevasLogWasDeleteStr + 
+                buf.Add("Ошибка: файл " + state.avevasLogWasDeleteStr +
                     " пуст. Произошла ошибка при создании лога aveva.");
-                ReadWriteTextFile.Write_to_file(buf, Directory.GetCurrentDirectory() + 
+                ReadWriteTextFile.Write_to_file(buf, Directory.GetCurrentDirectory() +
                     "\\Errors.txt", 0);
                 File.Delete(state.avevasLogWasDeleteStr);
             }
+        }
+
+        //Функция получения id и имен пользователей
+        private List<MappingIdWithName> getUsersIDAndNames()
+        {
+            MappingIDWithNameConverter converter = new MappingIDWithNameConverter();
+            return converter.convert(configProxyForLoadDataFromBDAndExecute(
+                "SELECT UserID, name, host FROM Users"));
+        }
+        //Функция получения всех id и названий ПО
+        private List<MappingIdWithName> getSoftwaresIdAndNames()
+        {
+            MappingIDWithNameConverter converter = new MappingIDWithNameConverter();
+            return converter.convert(configProxyForLoadDataFromBDAndExecute(
+                "SELECT DISTINCT SoftwareID FROM Software"));
+        }
+
+        //Функция получения id пользователя по его имени
+        private int checkExistUserInDB(List<MappingIdWithName> userInfo, 
+            string userName, string host)
+        {
+            for(int i=0;i< userInfo.Count;i++)
+            {
+                if(userName.Equals(userInfo.ElementAt(i).getName()))
+                {
+                    return userInfo.ElementAt(i).getId();
+                }
+            }
+            //ДОБАВИТЬ ИКЛЮЧЕНИЕ-ПОЛЬЗОВАТЕЛЬ НЕ НАЙДЕН
+            throw new Exception();
+        }
+
+        //Функция создания пользователя, если он не найден функцией 
+        //checkExistUserInDB(вылет исключения) вернется id пользователя
+        private int addUserIntoDB(string userName, string host)
+        {
+            configProxyForLoadDataFromOldBDAndExecute("INSERT INTO Users VALUES('" + userName +
+                "','" + host + "')");
+            configProxyForLoadDataFromOldBDAndExecute("SELECT UserID FROM Users WHERE name='" +
+                userName + "' AND host='" + host + "'");
+            ConverterSingleColumnFromDataSet converter = new ConverterSingleColumnFromDataSet();
+            return int.Parse(converter.convert(configProxyForLoadDataFromOldBDAndExecute(
+                "SELECT UserID FROM Users WHERE name='" + userName + "' AND host='" + host + 
+                "'"))[0]);
+        }
+
+        //Функция получения id ПО по его имени
+        private int checkExistSoftWareInDB(List<MappingIdWithName> softwareInfo,
+            string softwareName)
+        {
+            for (int i = 0; i < softwareInfo.Count; i++)
+            {
+                if (softwareName.Equals(softwareInfo.ElementAt(i).getName()))
+                {
+                    return softwareInfo.ElementAt(i).getId();
+                }
+            }
+            //ДОБАВИТЬ ИКЛЮЧЕНИЕ-ПО НЕ НАЙДЕНО(его необходимо добавить вручную)
+            throw new Exception();
         }
 
         public void recoverySelf(ModelsState state)
@@ -262,7 +314,7 @@ namespace ServerKeyLogsParser
             this.state = (ConcreteModelsState)state;
         }
 
-        private DataSet configProxyForLoadDataFromBDAndExecute(string query)
+        private DataSet configProxyForLoadDataFromOldBDAndExecute(string query)
         {
             DataWorker<MSAccessStateFields, DataSet> accessProxy = new MSAccessProxy();
             List<string> list = new List<string>();
@@ -275,7 +327,7 @@ namespace ServerKeyLogsParser
             return accessProxy.getResult();
         }
 
-        private DataSet configProxyForLoadDataFromBDAndExecute(List<string> list)
+        private DataSet configProxyForLoadDataFromOldBDAndExecute(List<string> list)
         {
             DataWorker<MSAccessStateFields, DataSet> accessProxy = new MSAccessProxy();
             MSAccessStateFields configProxy =
@@ -284,6 +336,28 @@ namespace ServerKeyLogsParser
             accessProxy.execute();
             list.Clear();
             return accessProxy.getResult();
+        }
+
+        private DataSet configProxyForLoadDataFromBDAndExecute(string query)
+        {
+            DataWorker<MsSQLServerStateFields, DataSet> msSQLServerProxy = new MsSQLServerProxy();
+            List<string> list = new List<string>();
+            list.Add(query);
+            MsSQLServerStateFields configProxy = new MsSQLServerStateFields();
+            msSQLServerProxy.setConfig(configProxy);
+            msSQLServerProxy.execute();
+            list.Clear();
+            return msSQLServerProxy.getResult();
+        }
+
+        private DataSet configProxyForLoadDataFromBDAndExecute(List<string> list)
+        {
+            DataWorker<MsSQLServerStateFields, DataSet> msSQLServerProxy = new MsSQLServerProxy();
+            MsSQLServerStateFields configProxy = new MsSQLServerStateFields();
+            msSQLServerProxy.setConfig(configProxy);
+            msSQLServerProxy.execute();
+            list.Clear();
+            return msSQLServerProxy.getResult();
         }
 
         public void setConfig(string pathToFileConfig)
