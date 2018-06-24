@@ -10,7 +10,8 @@ namespace ServerKeyLogsParser
 {
     class ReadWriteTextFile
     {
-        public static bool Write_to_file(List<String> buf_of_file_lines, string file_path, int action)
+        public static bool Write_to_file(List<string> buf_of_file_lines, 
+            string file_path, int action)
         {
             try
             {
@@ -48,7 +49,7 @@ namespace ServerKeyLogsParser
                 writer.Close(); //закрываем поток. Не закрыв поток, в файл ничего не запишется 
                 return true;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 //ReadWriteTextFile rwtf = new ReadWriteTextFile();
                 List<string> buf = new List<string>();
@@ -62,9 +63,7 @@ namespace ServerKeyLogsParser
             }
         }
 
-
-
-        public static List<String> Read_from_file(string file_path, string last_records_time)
+        public static List<string> Read_from_file(string file_path, string last_records_time)
         {
             List<String> buf_of_file_lines = new List<string>();
             int i = 0;
@@ -99,48 +98,48 @@ namespace ServerKeyLogsParser
                 }*/
                 /*else//это autodesk-лог
                 {*/
-                    
-                
-                
-                
-                
-                
-                
-                
-                    //Копировать
-                    //сразу запишу в ответ строку с датой, иначе ее может и не быть
-                    string[] new_date = onli_time_plus_date[0].Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
-                    buf_of_file_lines.Add(onli_time_plus_date[1] + " (adskflex) (@adskflex-SLOG@) Time: Tue " + month_converter(int.Parse(new_date.ElementAt(1))) + " " + new_date.ElementAt(0) + " " + new_date.ElementAt(2) + " " + onli_time_plus_date[1] + " Калининградское время (зима)");
-                    while (reader.EndOfStream == false)
+
+
+
+
+
+
+
+
+                //Копировать
+                //сразу запишу в ответ строку с датой, иначе ее может и не быть
+                string[] new_date = onli_time_plus_date[0].Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+                buf_of_file_lines.Add(onli_time_plus_date[1] + " (adskflex) (@adskflex-SLOG@) Time: Tue " + month_converter(int.Parse(new_date.ElementAt(1))) + " " + new_date.ElementAt(0) + " " + new_date.ElementAt(2) + " " + onli_time_plus_date[1] + " Калининградское время (зима)");
+                while (reader.EndOfStream == false)
+                {
+                    string row = reader.ReadLine();
+                    if (found_the_last_date == 0)//новая дата  не найдена, в логе вначале указывается дата, а потом время(оно на нижних строках)
+                    {//третий аргумент для случая, если будет найден пердыдущий день и нужно будет запомнить час
+                        found_the_last_date = Check_rows_on_date(row, onli_time_plus_date[0], ref previous_time_hour);
+                        if (found_the_last_date == 1)
+                        {
+                            buf_of_file_lines.Add(row); //записываю найденную дату, иначе ее не будет вообще
+                                                        //потому что далее алгоритм ищет только новые строки, а в них может не быть даты
+                        }
+                    }
+                    if (found_the_last_date == 2)//ищем место, в логе, где время как бы обнуляется
+                    {//то есть время на следующей строке меньше, чем на предыдущей и тогда found_the_last_date == 1
+                        if (check_on_new_day(row, ref previous_time_hour) == true)
+                        {
+                            found_the_last_date = 1;
+                        }
+                    }
+                    if (found_the_last_date == 1)//новая дата найдена, но не найдено еще новое время, в логе вначале указывается дата, а потом время(оно на нижних строках)
                     {
-                        string row = reader.ReadLine();
-                        if (found_the_last_date == 0)//новая дата  не найдена, в логе вначале указывается дата, а потом время(оно на нижних строках)
-                        {//третий аргумент для случая, если будет найден пердыдущий день и нужно будет запомнить час
-                            found_the_last_date = Check_rows_on_date(row, onli_time_plus_date[0], ref previous_time_hour);
-                            if (found_the_last_date == 1)
-                            {
-                                buf_of_file_lines.Add(row); //записываю найденную дату, иначе ее не будет вообще
-                                                            //потому что далее алгоритм ищет только новые строки, а в них может не быть даты
-                            }
-                        }
-                        if (found_the_last_date == 2)//ищем место, в логе, где время как бы обнуляется
-                        {//то есть время на следующей строке меньше, чем на предыдущей и тогда found_the_last_date == 1
-                            if (check_on_new_day(row, ref previous_time_hour) == true)
-                            {
-                                found_the_last_date = 1;
-                            }
-                        }
-                        if (found_the_last_date == 1)//новая дата найдена, но не найдено еще новое время, в логе вначале указывается дата, а потом время(оно на нижних строках)
-                        {
-                            found_the_last_time = Check_rows_on_time(row, onli_time_plus_date[1], ref previous_time_hour);
-                        }
-                        //если true, то все строки, которые ниже-новые
-                        if (found_the_last_time == true)//для возврата к исходному классу оставить содержание текущего if, а все условия на этом уровне удалить
-                        {
-                            buf_of_file_lines.Add(row); //считываем все данные с потока
-                            found_the_last_date = 4;//чтобы работало только это условие
-                        }
-                    }//Копировать
+                        found_the_last_time = Check_rows_on_time(row, onli_time_plus_date[1], ref previous_time_hour);
+                    }
+                    //если true, то все строки, которые ниже-новые
+                    if (found_the_last_time == true)//для возврата к исходному классу оставить содержание текущего if, а все условия на этом уровне удалить
+                    {
+                        buf_of_file_lines.Add(row); //считываем все данные с потока
+                        found_the_last_date = 4;//чтобы работало только это условие
+                    }
+                }//Копировать
 
 
 
@@ -168,8 +167,7 @@ namespace ServerKeyLogsParser
             }
         }
 
-
-        public static List<String> Read_from_file(string file_path)//обычное чтение файла
+        public static List<string> Read_from_file(string file_path)//обычное чтение файла
         {
             List<String> buf_of_file_lines = new List<string>();
             try
@@ -178,7 +176,7 @@ namespace ServerKeyLogsParser
                 StreamReader reader = new StreamReader(file1, Encoding.UTF8); // создаем «потоковый читатель» и связываем его с файловым потоком 
                 while (reader.EndOfStream == false)
                 {
-                        buf_of_file_lines.Add(reader.ReadLine()); //считываем все данные с потока
+                    buf_of_file_lines.Add(reader.ReadLine()); //считываем все данные с потока
                 }
                 reader.Close(); //закрываем поток
                 return buf_of_file_lines;
@@ -198,8 +196,24 @@ namespace ServerKeyLogsParser
             }
         }
 
+        //проверка, существует ли файл или можно ли его открыть
+        public static bool testExistFile(string filePath)
+        {
+            try
+            {
+                FileStream file1 = new FileStream(filePath, FileMode.Open);
+                file1.Close();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
 
-        private static bool Check_rows_on_time(string row, string last_time_non_parsing, ref int previous_time)//проверка на уже проверенные строки, когда вернет true можно дальше не проверять
+        //проверка на уже проверенные строки, когда вернет true можно дальше не проверять
+        private static bool Check_rows_on_time(string row, string last_time_non_parsing, 
+            ref int previous_time)
         {
             string in_example = @".*IN\W.*";
             string out_example = @".*OUT\W.*";
@@ -212,10 +226,10 @@ namespace ServerKeyLogsParser
                 string[] words = row.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                 string[] time_string = words[0].Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
                 //удаление лишних нулей, например, 4 часа до этого значились как 04
-                for(int i=0;i<3;i++)
+                for (int i = 0; i < 3; i++)
                 {
                     string a = time_string[i];
-                    if ((a.ElementAt(0).ToString().Equals("0")) & (a.Count()>1))
+                    if ((a.ElementAt(0).ToString().Equals("0")) & (a.Count() > 1))
                     {
                         time_string[i] = time_string[i].Remove(0, 1);
                     }
@@ -251,9 +265,10 @@ namespace ServerKeyLogsParser
             return false;
         }
 
-
-
-        private static int Check_rows_on_date(string row, string last_date_non_parsing, ref int previous_time_hour)//проверка на уже проверенные строки, когда вернет true можно дальше проверять функцией Check_rows_on_time
+        //проверка на уже проверенные строки, когда вернет true можно дальше проверять 
+        //функцией Check_rows_on_time
+        private static int Check_rows_on_date(string row, string last_date_non_parsing,
+            ref int previous_time_hour)
         {//0-не новая дата, 1-новая дата, 2-за день до новой даты. 2 нужна, потому что новая дата пишется не в 24:00, а на несколько часов позже
             string time_example = @".*Time:.*";
             string time_example2 = @".*Start-Date:.*";
@@ -290,7 +305,7 @@ namespace ServerKeyLogsParser
                                     times[0] = times[0].Remove(0, 1);
                                 }
                                 previous_time_hour = int.Parse(times[0]);
-                                
+
                                 return 2;
                             }
                         }
@@ -341,8 +356,6 @@ namespace ServerKeyLogsParser
             return 0;
         }
 
-
-
         private static bool check_on_new_day(string row, ref int previous_time_hour)
         {
             string[] words = row.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
@@ -365,9 +378,8 @@ namespace ServerKeyLogsParser
             return false;
         }
 
-
-
-        private static int month_converter(string month)//перевод символьного обозначения месяца в числовое
+        //перевод символьного обозначения месяца в числовое
+        private static int month_converter(string month)
         {
             string[] conveter_month = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
             for (int i = 0; i < 12; i++)
@@ -381,12 +393,11 @@ namespace ServerKeyLogsParser
             return -1;
         }
 
-
-
-        private static string month_converter(int month)//перевод числового обозначения месяца в символьное
+        //перевод числового обозначения месяца в символьное
+        private static string month_converter(int month)
         {
             string[] conveter_month = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
-            return conveter_month.ElementAt((month-1));
+            return conveter_month.ElementAt((month - 1));
         }
     }
 }
