@@ -59,7 +59,9 @@
     <Compile Include="CommonComponents\WorkWithFiles\Save\TextFilesConfigFieldsOnSave.cs" />
     <Compile Include="CommonComponents\WorkWithFiles\Save\TextFilesDataSaver.cs" />
     <Compile Include="ParserComponents\DataConverters\MappingIDWithNameConverter.cs" />
+    <Compile Include="ParserComponents\DataConverters\MappingIDWithNameWithHostConverter.cs" />
     <Compile Include="ParserComponents\MediumStores\MappingIdWithName.cs" />
+    <Compile Include="ParserComponents\MediumStores\MappingIdWithNameWithHost.cs" />
     <Compile Include="ParserComponents\Parsers\AutoDeskParser.cs" />
     <Compile Include="ParserComponents\Parsers\AvevaParser.cs" />
     <Compile Include="CommandStore\Basic\Command.cs" />

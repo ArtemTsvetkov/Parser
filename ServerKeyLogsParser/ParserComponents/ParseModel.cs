@@ -4,6 +4,7 @@ using ServerKeyLogsParser.CommonComponents.Interfaces.Data;
 using ServerKeyLogsParser.CommonComponents.MsSQLServerDB;
 using ServerKeyLogsParser.CommonComponents.WorkWithFiles.Load;
 using ServerKeyLogsParser.ParserComponents.DataConverters;
+using ServerKeyLogsParser.ParserComponents.MediumStores;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -26,7 +27,7 @@ namespace ServerKeyLogsParser
         public void parseFiles()
         {
             //Получение id пользователей
-            List<MappingIdWithName> usersInfo = getUsersIDAndNames();
+            List<MappingIdWithNameWithHost> usersInfo = getUsersIDAndNames();
             //Получение id программного обеспечения
             List<MappingIdWithName> softwareInfo = getSoftwaresIdAndNames();
 
@@ -78,23 +79,24 @@ namespace ServerKeyLogsParser
                         {
                             userID = addUserIntoDB(state.result.ElementAt(i).user,
                                 state.result.ElementAt(i).host);
+                            usersInfo = getUsersIDAndNames();
                         }
                         //Получение id ПО
                         softwareID = checkExistSoftWareInDB(
-                            usersInfo, state.result.ElementAt(i).po);
+                            softwareInfo, state.result.ElementAt(i).po);
                         //если это логи aveva, то нужно каждый раз проверять, есть ли 
                         //такие же записи в бд
                         if (state.result.ElementAt(i).vendor == "Aveva")
                         {
                             string query = "SELECT COUNT(*) FROM History WHERE UserID=" + userID +
                                 " AND SoftwareID = " + softwareID + " AND DateIN = '" +
-                                state.result.ElementAt(i).star_time.Date.ToString("MM/dd/yyyy") + 
+                                state.result.ElementAt(i).star_time.Date.ToString("yyyy-MM-dd") + 
                                 "' AND DateExit = '" +
-                                state.result.ElementAt(i).finish_time.Date.ToString("MM/dd/yyyy") + 
+                                state.result.ElementAt(i).finish_time.Date.ToString("yyyy-MM-dd") + 
                                 "' AND TimeIn = '" +
-                                state.result.ElementAt(i).star_time.Date.ToLongTimeString() + 
+                                state.result.ElementAt(i).star_time.ToLongTimeString() + 
                                 "' AND TimeExit='" +
-                                state.result.ElementAt(i).finish_time.Date.ToLongTimeString() + "'";
+                                state.result.ElementAt(i).finish_time.ToLongTimeString() + "'";
                             DataSet ds = configProxyForLoadDataFromBDAndExecute(query);
                             int count = ds.Tables[0].Rows.Count;
 
@@ -104,13 +106,13 @@ namespace ServerKeyLogsParser
                             {
                                 string newLine = "INSERT INTO History VALUES(" + userID + "," + 
                                     softwareID + ",'" +
-                                    state.result.ElementAt(i).star_time.Date.ToString("MM/dd/yyyy") + 
+                                    state.result.ElementAt(i).star_time.Date.ToString("yyyy-MM-dd") + 
                                     "','" +
                                     state.result.ElementAt(i).finish_time.Date.
-                                    ToString("MM/dd/yyyy") + "','" +
-                                    state.result.ElementAt(i).star_time.Date.ToLongTimeString() + 
+                                    ToString("yyyy-MM-dd") + "','" +
+                                    state.result.ElementAt(i).star_time.ToLongTimeString() + 
                                     "','" +
-                                    state.result.ElementAt(i).finish_time.Date.ToLongTimeString() + 
+                                    state.result.ElementAt(i).finish_time.ToLongTimeString() + 
                                     "')";
                                 configProxyForLoadDataFromBDAndExecute(newLine);
                             }
@@ -126,11 +128,11 @@ namespace ServerKeyLogsParser
                                     softwareID + "," +
                                     "null" +
                                     ",'" +
-                                    state.result.ElementAt(i).finish_time.Date.ToString("MM/dd/yyyy") +
+                                    state.result.ElementAt(i).finish_time.Date.ToString("yyyy-MM-dd") +
                                     "'," +
                                     "null" +
                                     ",'" +
-                                    state.result.ElementAt(i).finish_time.Date.ToLongTimeString() + "')";
+                                    state.result.ElementAt(i).finish_time.ToLongTimeString() + "')";
                             buf.Add(newLine);
                             continue;
                         }
@@ -141,11 +143,11 @@ namespace ServerKeyLogsParser
                         {
                             string newLine = "INSERT INTO History VALUES(" + userID + "," +
                                     softwareID + ",'" +
-                                    state.result.ElementAt(i).star_time.Date.ToString("MM/dd/yyyy") +
+                                    state.result.ElementAt(i).star_time.Date.ToString("yyyy-MM-dd") +
                                     "'," +
                                     "null" +
                                     ",'" +
-                                    state.result.ElementAt(i).star_time.Date.ToLongTimeString() +
+                                    state.result.ElementAt(i).star_time.ToLongTimeString() +
                                     "'," +
                                     "null" + ")";
                             buf.Add(newLine);
@@ -156,13 +158,13 @@ namespace ServerKeyLogsParser
                         {
                             string newLine = "INSERT INTO History VALUES(" + userID + "," +
                                     softwareID + ",'" +
-                                    state.result.ElementAt(i).star_time.Date.ToString("MM/dd/yyyy") +
+                                    state.result.ElementAt(i).star_time.Date.ToString("yyyy-MM-dd") +
                                     "','" +
                                     state.result.ElementAt(i).finish_time.Date.
-                                    ToString("MM/dd/yyyy") + "','" +
-                                    state.result.ElementAt(i).star_time.Date.ToLongTimeString() +
+                                    ToString("yyyy-MM-dd") + "','" +
+                                    state.result.ElementAt(i).star_time.ToLongTimeString() +
                                     "','" +
-                                    state.result.ElementAt(i).finish_time.Date.ToLongTimeString() +
+                                    state.result.ElementAt(i).finish_time.ToLongTimeString() +
                                     "')";
                             buf.Add(newLine);
                         }
@@ -251,9 +253,9 @@ namespace ServerKeyLogsParser
         }
 
         //Функция получения id и имен пользователей
-        private List<MappingIdWithName> getUsersIDAndNames()
+        private List<MappingIdWithNameWithHost> getUsersIDAndNames()
         {
-            MappingIDWithNameConverter converter = new MappingIDWithNameConverter();
+            MappingIDWithNameWithHostConverter converter = new MappingIDWithNameWithHostConverter();
             return converter.convert(configProxyForLoadDataFromBDAndExecute(
                 "SELECT UserID, name, host FROM Users"));
         }
@@ -262,11 +264,11 @@ namespace ServerKeyLogsParser
         {
             MappingIDWithNameConverter converter = new MappingIDWithNameConverter();
             return converter.convert(configProxyForLoadDataFromBDAndExecute(
-                "SELECT DISTINCT SoftwareID FROM Software"));
+                "SELECT SoftwareID, Code FROM Software"));
         }
 
         //Функция получения id пользователя по его имени
-        private int checkExistUserInDB(List<MappingIdWithName> userInfo, 
+        private int checkExistUserInDB(List<MappingIdWithNameWithHost> userInfo, 
             string userName, string host)
         {
             for(int i=0;i< userInfo.Count;i++)
@@ -284,12 +286,10 @@ namespace ServerKeyLogsParser
         //checkExistUserInDB(вылет исключения) вернется id пользователя
         private int addUserIntoDB(string userName, string host)
         {
-            configProxyForLoadDataFromOldBDAndExecute("INSERT INTO Users VALUES('" + userName +
+            configProxyForLoadDataFromBDAndExecute("INSERT INTO Users VALUES('" + userName +
                 "','" + host + "')");
-            configProxyForLoadDataFromOldBDAndExecute("SELECT UserID FROM Users WHERE name='" +
-                userName + "' AND host='" + host + "'");
             ConverterSingleColumnFromDataSet converter = new ConverterSingleColumnFromDataSet();
-            return int.Parse(converter.convert(configProxyForLoadDataFromOldBDAndExecute(
+            return int.Parse(converter.convert(configProxyForLoadDataFromBDAndExecute(
                 "SELECT UserID FROM Users WHERE name='" + userName + "' AND host='" + host + 
                 "'"))[0]);
         }
@@ -343,7 +343,7 @@ namespace ServerKeyLogsParser
             DataWorker<MsSQLServerStateFields, DataSet> msSQLServerProxy = new MsSQLServerProxy();
             List<string> list = new List<string>();
             list.Add(query);
-            MsSQLServerStateFields configProxy = new MsSQLServerStateFields();
+            MsSQLServerStateFields configProxy = new MsSQLServerStateFields(list);
             msSQLServerProxy.setConfig(configProxy);
             msSQLServerProxy.execute();
             list.Clear();
@@ -353,7 +353,7 @@ namespace ServerKeyLogsParser
         private DataSet configProxyForLoadDataFromBDAndExecute(List<string> list)
         {
             DataWorker<MsSQLServerStateFields, DataSet> msSQLServerProxy = new MsSQLServerProxy();
-            MsSQLServerStateFields configProxy = new MsSQLServerStateFields();
+            MsSQLServerStateFields configProxy = new MsSQLServerStateFields(list);
             msSQLServerProxy.setConfig(configProxy);
             msSQLServerProxy.execute();
             list.Clear();

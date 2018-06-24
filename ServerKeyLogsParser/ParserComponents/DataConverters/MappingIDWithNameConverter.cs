@@ -15,10 +15,11 @@ namespace ServerKeyLogsParser.ParserComponents.DataConverters
             List<MappingIdWithName> result = new List<MappingIdWithName>();
             for (int i = 0; i < data.Tables[0].Rows.Count; i++)
             {
-                result.Add(new MappingIdWithName(
-                    int.Parse(data.Tables[0].Rows[i][0].ToString()),
-                    data.Tables[0].Rows[i][1].ToString(),
-                    data.Tables[0].Rows[i][2].ToString()));
+                int id = int.Parse(data.Tables[0].Rows[i][0].ToString());
+                string code = data.Tables[0].Rows[i][1].ToString();
+                code = code.Replace(" ", "");
+
+                result.Add(new MappingIdWithName(id,code));
             }
             return result;
         }

@@ -4,17 +4,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ServerKeyLogsParser.ParserComponents.DataConverters
+namespace ServerKeyLogsParser.ParserComponents.MediumStores
 {
-    class MappingIdWithName
+    class MappingIdWithNameWithHost
     {
         private int id;
         private string name;
+        private string host;
 
-        public MappingIdWithName(int id, string name)
+        public MappingIdWithNameWithHost(int id, string name, string host)
         {
             this.id = id;
             this.name = name;
+            this.host = host;
         }
 
         public int getId()
@@ -25,6 +27,11 @@ namespace ServerKeyLogsParser.ParserComponents.DataConverters
         public string getName()
         {
             return name;
+        }
+
+        public string getHost()
+        {
+            return host;
         }
     }
 }
