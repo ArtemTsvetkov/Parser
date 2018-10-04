@@ -2,6 +2,7 @@
 using ServerKeyLogsParser.CommonComponents.Interfaces.Data;
 using ServerKeyLogsParser.CommonComponents.MsSQLServerDB;
 using ServerKeyLogsParser.CommonComponents.WorkWithFiles.Load;
+using ServerKeyLogsParser.ParserComponents;
 using ServerKeyLogsParser.ParserComponents.DataConverters;
 using ServerKeyLogsParser.ParserComponents.MediumStores;
 using System;
@@ -318,7 +319,8 @@ namespace ServerKeyLogsParser
             DataWorker<MsSQLServerStateFields, DataSet> msSQLServerProxy = new MsSQLServerProxy();
             List<string> list = new List<string>();
             list.Add(query);
-            MsSQLServerStateFields configProxy = new MsSQLServerStateFields(list);
+            MsSQLServerStateFields configProxy = new MsSQLServerStateFields(
+                list, state.connectionString);
             msSQLServerProxy.setConfig(configProxy);
             msSQLServerProxy.execute();
             list.Clear();
@@ -328,89 +330,36 @@ namespace ServerKeyLogsParser
         private DataSet configProxyForLoadDataFromBDAndExecute(List<string> list)
         {
             DataWorker<MsSQLServerStateFields, DataSet> msSQLServerProxy = new MsSQLServerProxy();
-            MsSQLServerStateFields configProxy = new MsSQLServerStateFields(list);
+            MsSQLServerStateFields configProxy = new MsSQLServerStateFields(
+                list, state.connectionString);
             msSQLServerProxy.setConfig(configProxy);
             msSQLServerProxy.execute();
             list.Clear();
             return msSQLServerProxy.getResult();
         }
 
-        public void setConfig(string pathToFileConfig)
+        public void setConfig(ParseConfig config)
         {
-            DataWorker<TextFilesConfigFieldsOnLoad, List<string>> fileLoader =
-                        new TextFilesDataLoader();
-            TextFilesConfigFieldsOnLoad configForFileLoader =
-                new TextFilesConfigFieldsOnLoad(Directory.GetCurrentDirectory() + "\\settings.txt");
-            fileLoader.setConfig(configForFileLoader);
-            if (!fileLoader.connect())
+            state.serverHost = config.serversHost;
+            state.avevasLogWasDeleteStr = config.avevasLogWasDeleteStr;
+            state.logFiles = config.logFiles;
+            state.connectionString = config.connectionString;
+
+            if (state.avevasLogWasDeleteStr!=null)
             {
-                //ДОБАВИТЬ ВЫЗОВ ИСКЛЮЧЕНИЯ-НЕТ ДОСТУПА К ФАЙЛУ НАСТРОЕК
-            }
-            fileLoader.execute();
-            List<string> buf_of_lines = fileLoader.getResult();
-            for (int i = 0; i < buf_of_lines.Count; i++)
-            {
-                if (buf_of_lines.ElementAt(i) != "")
+                state.avevasLogWasDelete = false;
+                //запуск утилиты создания лога Aveva
+                string command = @"/C " + Directory.GetCurrentDirectory() +
+                    "\\CreateAvevasLog.bat";
+                WorkWithWindowsCommandLine wwwcl = new WorkWithWindowsCommandLine();
+                wwwcl.Run_command(command);
+                while (File.Exists(Directory.GetCurrentDirectory() + "\\output.txt")
+                    == false)//ожидание создания файла
                 {
-                    string[] words = buf_of_lines.ElementAt(i).Split(new char[] { ' ' }, 
-                        StringSplitOptions.RemoveEmptyEntries);
-                    //исключение ошибок неправильного заполнения файла настроек
-                    if (words.Count() > 1)
-                    {
-                        //если это путь к логу
-                        if ((words[1] == "path_of_log_file") & (words.Count() > 2))
-                        {
-                            LogAndHisLastEntry lahle = new LogAndHisLastEntry();
-                            lahle.path = words[0];
-                            lahle.last_entry = words[2];
-                            state.logFiles.Add(lahle);
-                            continue;
-                        }
-                        if (words[1] == "server's_host")//если это название сервера
-                        {
-                            state.serverHost = words[0];
-                            continue;
-                        }
-                        if (words[1] == "path_of_data_base")//если это путь к базе данных
-                        {
-                            state.pathOfDataBase = words[0];
-                            continue;
-                        }
-                        if (words[1] == "table")//если это название таблицы
-                        {
-                            state.tableOfDataBase = words[0];
-                            continue;
-                        }
-                        if (words[1] == "PathAvevasParser")//если необходимо парсить логи aveva
-                        {
-                            state.avevasLogWasDelete = false;
-                            LogAndHisLastEntry lahle = new LogAndHisLastEntry();
-                            lahle.path = Directory.GetCurrentDirectory() + "\\output.txt";
-                            //просто так, чтобы не переделывать парсер для случая пустого 
-                            //времени. Для логов Aveva это не важно и одинаковые строки 
-                            //исключаются другим способом - по запросу к БД.
-                            lahle.last_entry = "1.1.1970_12:0:0";
-                            state.logFiles.Add(lahle);
-                            state.avevasLogWasDeleteStr = lahle.path;
 
-                            //запуск утилиты создания лога Aveva
-                            string command = @"/C " + Directory.GetCurrentDirectory() + 
-                                "\\CreateAvevasLog.bat";
-                            WorkWithWindowsCommandLine wwwcl = new WorkWithWindowsCommandLine();
-                            //в переменную server_host записываю значение только чтобы не 
-                            //создавать нувую переменную, здесь просто лежит ответ командной 
-                            //строки
-                            state.serverHost = wwwcl.Run_command(command);
-                            while (File.Exists(Directory.GetCurrentDirectory() + "\\output.txt")
-                                == false)//ожидание создания файла
-                            {
-
-                            }
-                            continue;
-                        }
-                    }
                 }
             }
+            
         }
     }
 }
