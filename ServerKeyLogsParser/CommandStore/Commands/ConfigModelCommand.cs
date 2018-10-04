@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ServerKeyLogsParser.ParserComponents;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,11 +12,13 @@ namespace ServerKeyLogsParser
     {
         private Model model;
         private ModelsState state;
+        private ParseConfig config;
 
-        public ConfigModelCommand(Model model)
+        public ConfigModelCommand(Model model, ParseConfig config)
         {
             this.model = model;
             state = this.model.copySelf();
+            this.config = config;
         }
 
         public ModelsState getModelState()
@@ -30,7 +33,7 @@ namespace ServerKeyLogsParser
 
         public void execute()
         {
-            model.setConfig(Directory.GetCurrentDirectory() + "\\settings.txt");
+            model.setConfig(config);
         }   
     }
 }

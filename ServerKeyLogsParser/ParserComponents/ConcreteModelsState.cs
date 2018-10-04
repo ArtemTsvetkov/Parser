@@ -8,10 +8,9 @@ namespace ServerKeyLogsParser
 {
     class ConcreteModelsState : ModelsState
     {
-        public string pathOfDataBase = "";
-        public string tableOfDataBase = "";
         public string serverHost = "";
         public string avevasLogWasDeleteStr = "";
+        public string connectionString="";
         //на случай, если включена функция парсинга логов Aveva.
         //при ошибке в чтении или создании этого лога создается пустой лог-файл.
         //В этом случае программа его не удалит и это будет означат ошибку, по 

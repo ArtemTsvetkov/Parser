@@ -8,13 +8,12 @@ namespace ServerKeyLogsParser.CommonComponents.MsSQLServerDB
 {
     class MsSQLServerStateFields
     {
-        //ВРЕМЕННО
         private string connectionString;
         private List<string> query;
 
-        public MsSQLServerStateFields(List<string> query)
+        public MsSQLServerStateFields(List<string> query, string connectionString)
         {
-            connectionString = "Provider=SQLNCLI11;Data Source=DESKTOP-CG8MSKG;Integrated Security=SSPI;Initial Catalog=LicenseInformationSystem";
+            this.connectionString = connectionString;
             this.query = query;
         }
 
