@@ -1,5 +1,4 @@
-﻿using ServerKeyLogsParser.CommonComponents.AccessDataBase;
-using ServerKeyLogsParser.CommonComponents.DataConverters;
+﻿using ServerKeyLogsParser.CommonComponents.DataConverters;
 using ServerKeyLogsParser.CommonComponents.Interfaces.Data;
 using ServerKeyLogsParser.CommonComponents.MsSQLServerDB;
 using ServerKeyLogsParser.CommonComponents.WorkWithFiles.Load;
@@ -312,30 +311,6 @@ namespace ServerKeyLogsParser
         public void recoverySelf(ModelsState state)
         {
             this.state = (ConcreteModelsState)state;
-        }
-
-        private DataSet configProxyForLoadDataFromOldBDAndExecute(string query)
-        {
-            DataWorker<MSAccessStateFields, DataSet> accessProxy = new MSAccessProxy();
-            List<string> list = new List<string>();
-            list.Add(query);
-            MSAccessStateFields configProxy =
-                new MSAccessStateFields(state.pathOfDataBase, list);
-            accessProxy.setConfig(configProxy);
-            accessProxy.execute();
-            list.Clear();
-            return accessProxy.getResult();
-        }
-
-        private DataSet configProxyForLoadDataFromOldBDAndExecute(List<string> list)
-        {
-            DataWorker<MSAccessStateFields, DataSet> accessProxy = new MSAccessProxy();
-            MSAccessStateFields configProxy =
-                new MSAccessStateFields(state.pathOfDataBase, list);
-            accessProxy.setConfig(configProxy);
-            accessProxy.execute();
-            list.Clear();
-            return accessProxy.getResult();
         }
 
         private DataSet configProxyForLoadDataFromBDAndExecute(string query)

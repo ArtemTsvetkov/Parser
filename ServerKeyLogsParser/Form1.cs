@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ServerKeyLogsParser.CommonComponents.ExceptionHandler.Concrete;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -16,6 +17,8 @@ namespace ServerKeyLogsParser
         public Form1()
         {
             //InitializeComponent();
+            ConcreteExceptionHandlerInitializer.initThisExceptionHandler(
+                ExceptionHandler.getInstance());
             Model model = new ParseModel();
             ConcreteCommandStore commandsStore = new ConcreteCommandStore();
 
