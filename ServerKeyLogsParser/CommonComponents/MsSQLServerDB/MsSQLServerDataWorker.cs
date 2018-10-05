@@ -1,4 +1,5 @@
-﻿using ServerKeyLogsParser.CommonComponents.Interfaces.Data;
+﻿using ServerKeyLogsParser.CommonComponents.Exceptions;
+using ServerKeyLogsParser.CommonComponents.Interfaces.Data;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -80,32 +81,16 @@ namespace ServerKeyLogsParser.CommonComponents.MsSQLServerDB
                     }
                     catch (Exception ex)
                     {
-                        ReadWriteTextFile rwtf = new ReadWriteTextFile();
-                        List<string> buf = new List<string>();
-                        buf.Add("-----------------------------------------------");
-                        buf.Add("Module: Form1");
-                        DateTime thisDay = DateTime.Now;
-                        buf.Add("Time: " + thisDay.ToString());
-                        buf.Add("Exception: " + ex.Message);
-                        buf.Add("Query:" + query);
-                        ReadWriteTextFile.Write_to_file(buf, Directory.GetCurrentDirectory() +
-                            "\\Errors.txt", 0);
+                        throw new DatabaseQueryError("Database query error. Query:" +
+                            query.ElementAt(i));
                     }
                 }
                 return dataSet;
             }
             catch (Exception ex)
             {
-                ReadWriteTextFile rwtf = new ReadWriteTextFile();
-                List<string> buf = new List<string>();
-                buf.Add("-----------------------------------------------");
-                buf.Add("Module: Form1");
-                DateTime thisDay = DateTime.Now;
-                buf.Add("Time: " + thisDay.ToString());
-                buf.Add("Exception: " + ex.Message);
-                ReadWriteTextFile.Write_to_file(buf, Directory.GetCurrentDirectory() + "\\Errors.txt",
-                    0);
-                return null;
+                throw new NoDataBaseConnection("Unable to connect to database. Connection: "+
+                    connection_string);
             }
             finally
             {

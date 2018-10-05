@@ -1,4 +1,5 @@
-﻿using ServerKeyLogsParser.CommonComponents.Interfaces.Data;
+﻿using ServerKeyLogsParser.CommonComponents.Exceptions;
+using ServerKeyLogsParser.CommonComponents.Interfaces.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +27,7 @@ namespace ServerKeyLogsParser.CommonComponents.WorkWithFiles.Load
             }
             else
             {
-                //ДОБАВИТЬ ВЫЗОВ ИСКЛЮЧЕНИЯ
+                throw new ConnectionErrorToFile("Connection error to file");
             }
         }
 
