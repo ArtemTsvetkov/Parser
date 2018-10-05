@@ -32,7 +32,7 @@ namespace ServerKeyLogsParser
             }
             catch (Exception ex)
             {
-                
+                ExceptionHandler.getInstance().processing(ex);
             }
             finally
             {

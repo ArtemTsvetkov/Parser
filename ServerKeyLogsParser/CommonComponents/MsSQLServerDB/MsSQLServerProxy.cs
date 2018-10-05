@@ -1,4 +1,5 @@
-﻿using ServerKeyLogsParser.CommonComponents.Interfaces.Data;
+﻿using ServerKeyLogsParser.CommonComponents.Exceptions;
+using ServerKeyLogsParser.CommonComponents.Interfaces.Data;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -13,6 +14,7 @@ namespace ServerKeyLogsParser.CommonComponents.MsSQLServerDB
     {
         private DataWorker<MsSQLServerStateFields, DataSet> saver = new MsSQLServerDataWorker();
         private MsSQLServerStateFields config;
+        private string connection_string;
 
         public void setConfig(MsSQLServerStateFields config)
         {
@@ -25,10 +27,6 @@ namespace ServerKeyLogsParser.CommonComponents.MsSQLServerDB
             if (connect())
             {
                 saver.execute();
-            }
-            else
-            {
-                //ДОБАВИТЬ СЮДА ВЫЗОВ ИСКЛЮЧЕНИЯ
             }
         }
 
@@ -56,8 +54,8 @@ namespace ServerKeyLogsParser.CommonComponents.MsSQLServerDB
             }
             catch (Exception ex)
             {
-                //ДОБАВИТЬ СЮДА ВЫЗОВ ИСКЛЮЧЕНИЯ
-                throw new Exception();
+                throw new NoDataBaseConnection("Unable to connect to database. Connection: " +
+                    connection_string);
             }
             finally
             {

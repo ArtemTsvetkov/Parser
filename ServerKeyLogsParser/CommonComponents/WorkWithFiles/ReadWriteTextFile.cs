@@ -80,32 +80,6 @@ namespace ServerKeyLogsParser
                 StreamReader reader = new StreamReader(file1, Encoding.UTF8); // создаем «потоковый читатель» и связываем его с файловым потоком 
 
 
-                /*
-                //читаем первые 4 строки для идентификации лога авевы
-                for (int j = 0; j < 4; j++)
-                {
-                    four_file_rows = reader.ReadLine();
-                }
-                if (four_file_rows == aveva_log_example)//это aveva-log
-                {//если это aveva, то просто читаем весь файл
-                    string row = "Aveva";//делаю отметку о том, что это лог-файл aveva
-                    buf_of_file_lines.Add(row);
-                    while (reader.EndOfStream == false)
-                    {
-                        row = reader.ReadLine();
-                        buf_of_file_lines.Add(row); //считываем все данные с потока
-                    }
-                }*/
-                /*else//это autodesk-лог
-                {*/
-
-
-
-
-
-
-
-
                 //Копировать
                 //сразу запишу в ответ строку с датой, иначе ее может и не быть
                 string[] new_date = onli_time_plus_date[0].Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);

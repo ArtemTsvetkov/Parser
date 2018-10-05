@@ -57,7 +57,10 @@
     <Compile Include="CommonComponents\ExceptionHandler\Interfaces\ExceptionsJornalistInterface.cs" />
     <Compile Include="CommonComponents\ExceptionHandler\TextJornalist\TextFilesJornalist.cs" />
     <Compile Include="CommonComponents\ExceptionHandler\TextJornalist\TextJornalistConfig.cs" />
+    <Compile Include="CommonComponents\Exceptions\ConnectionErrorToFile.cs" />
+    <Compile Include="CommonComponents\Exceptions\DatabaseQueryError.cs" />
     <Compile Include="CommonComponents\Exceptions\NoConfigurationSpecified.cs" />
+    <Compile Include="CommonComponents\Exceptions\NoDataBaseConnection.cs" />
     <Compile Include="CommonComponents\InitialyzerComponent\InitComponents.cs" />
     <Compile Include="CommonComponents\InitialyzerComponent\Initialyzer.cs" />
     <Compile Include="CommonComponents\InitialyzerComponent\ReadConfig\ConfigReader.cs" />
@@ -67,8 +70,6 @@
     <Compile Include="CommonComponents\MsSQLServerDB\MsSQLServerDataWorker.cs" />
     <Compile Include="CommonComponents\MsSQLServerDB\MsSQLServerProxy.cs" />
     <Compile Include="CommonComponents\MsSQLServerDB\MsSQLServerStateFields.cs" />
-    <Compile Include="CommonComponents\QueryConfiguratorComponent\Concrete\MsSqlQueryConfigurator.cs" />
-    <Compile Include="CommonComponents\QueryConfiguratorComponent\QueryConfigurator.cs" />
     <Compile Include="CommonComponents\WorkWithFiles\Load\TextFilesConfigFieldsOnLoad.cs" />
     <Compile Include="CommonComponents\WorkWithFiles\Load\TextFilesDataLoader.cs" />
     <Compile Include="CommonComponents\WorkWithFiles\Save\TextFilesConfigFieldsOnSave.cs" />

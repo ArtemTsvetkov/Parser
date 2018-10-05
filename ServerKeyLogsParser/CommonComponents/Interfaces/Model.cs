@@ -11,8 +11,6 @@ namespace ServerKeyLogsParser
     {
         void parseFiles();//Распарсить файлы логов
         void setConfig(ParseConfig config);//Загрузка в модель файла с конфигурацией
-        //void unloadIntoDB();//Выгрузить результаты в БД
-        //void updateConfig(string pathToFileConfig);//Выгрузить файл с конфигурацией (обновить)
         ModelsState copySelf();
         void recoverySelf(ModelsState state);
     }

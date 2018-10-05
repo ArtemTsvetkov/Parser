@@ -1,4 +1,5 @@
 ﻿using ServerKeyLogsParser.CommonComponents.DataConverters;
+using ServerKeyLogsParser.CommonComponents.InitialyzerComponent.ReadConfig;
 using ServerKeyLogsParser.CommonComponents.Interfaces.Data;
 using ServerKeyLogsParser.CommonComponents.MsSQLServerDB;
 using ServerKeyLogsParser.CommonComponents.WorkWithFiles.Load;
@@ -172,55 +173,21 @@ namespace ServerKeyLogsParser
                     configProxyForLoadDataFromBDAndExecute(buf);
                     //перезапись последней даты
                     List<string> new_buf_of_lines = new List<string>();
-                    DataWorker<TextFilesConfigFieldsOnLoad, List<string>> fileLoader =
-                        new TextFilesDataLoader();
-                    TextFilesConfigFieldsOnLoad configForFileLoader =
-                        new TextFilesConfigFieldsOnLoad(Directory.GetCurrentDirectory() + "\\settings.txt");
-                    fileLoader.setConfig(configForFileLoader);
-                    if (!fileLoader.connect())
+                    IniFiles INI = new IniFiles("config.ini");
+                    if (h == 0)
                     {
-                        //ДОБАВИТЬ ВЫЗОВ ИСКЛЮЧЕНИЯ-НЕТ ДОСТУПА К ФАЙЛУ НАСТРОЕК
-                    }
-                    fileLoader.execute();
-                    state.bufOfLines = fileLoader.getResult();
-                    for (int i = 0; i < state.bufOfLines.Count; i++)
-                    {
-                        if (state.bufOfLines.ElementAt(i) != "")
+                        if (last_date != "")
                         {
-                            string[] words = state.bufOfLines.ElementAt(i).
-                                Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                            //если это путь к логу, то записываю в него новую дату
-                            if (words[1] == "path_of_log_file")
-                            {
-                                if (words[0] == state.logFiles.ElementAt(h).path)
-                                {
-                                    string new_line = "";
-                                    if (last_date != "")
-                                    {
-                                        new_line = words[0] + " " + words[1] + " " + last_date;
-                                    }
-                                    else
-                                    {
-                                        new_line = words[0] + " " + words[1] + " " + words[2];
-                                    }
-                                    new_buf_of_lines.Add(new_line);
-                                    continue;
-                                }
-                                else
-                                {
-                                    new_buf_of_lines.Add(state.bufOfLines.ElementAt(i));
-                                    continue;
-                                }
-                            }
-                            else//иначе просто копирую строку
-                            {
-                                new_buf_of_lines.Add(state.bufOfLines.ElementAt(i));
-                                continue;
-                            }
+                            INI.Write("Settings", "lastDateOfLogFile", last_date);
                         }
                     }
-                    ReadWriteTextFile.Write_to_file(new_buf_of_lines,
-                        (Directory.GetCurrentDirectory() + "\\settings.txt"), 1);
+                    else
+                    {
+                        if (last_date != "")
+                        {
+                            INI.Write("Settings", "lastDateOfLogFile"+h.ToString(), "last_date");
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
