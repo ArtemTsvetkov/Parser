@@ -18,6 +18,7 @@ namespace ServerKeyLogsParser.CommonComponents.ExceptionHandler.Concrete
                 handler.addException(new ConnectionErrorToFile());
                 handler.addException(new DatabaseQueryError());
                 handler.addException(new NoDataBaseConnection());
+                handler.addException(new WindowsCommandLineError());
             }
             catch (Exception ex)
             {

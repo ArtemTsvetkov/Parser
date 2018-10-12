@@ -1,4 +1,6 @@
 ﻿using ServerKeyLogsParser.CommonComponents.DataConverters;
+using ServerKeyLogsParser.CommonComponents.ExceptionHandler.Concrete;
+using ServerKeyLogsParser.CommonComponents.Exceptions;
 using ServerKeyLogsParser.CommonComponents.InitialyzerComponent.ReadConfig;
 using ServerKeyLogsParser.CommonComponents.Interfaces.Data;
 using ServerKeyLogsParser.CommonComponents.MsSQLServerDB;
@@ -70,21 +72,17 @@ namespace ServerKeyLogsParser
                         int userID;
                         int softwareID;
                         //Получение id пользователя
-                        try
-                        {
-                            userID = checkExistUserInDB(
-                                usersInfo, state.result.ElementAt(i).user,
-                                state.result.ElementAt(i).host);
-                        }
-                        catch (Exception ex)
-                        {
-                            userID = addUserIntoDB(state.result.ElementAt(i).user,
-                                state.result.ElementAt(i).host);
-                            usersInfo = getUsersIDAndNames();
-                        }
+                        userID = checkExistUserInDB(
+                            usersInfo, state.result.ElementAt(i).user,
+                            state.result.ElementAt(i).host);
                         //Получение id ПО
                         softwareID = checkExistSoftWareInDB(
-                            softwareInfo, state.result.ElementAt(i).po);
+                            softwareInfo, state.result.ElementAt(i));
+                        if(softwareID==-1)
+                        {
+                            softwareID = addSoftwareIntoDB(state.result.ElementAt(i));
+                            softwareInfo = getSoftwaresIdAndNames();
+                        }
                         //если это логи aveva, то нужно каждый раз проверять, есть ли 
                         //такие же записи в бд
                         if (state.result.ElementAt(i).vendor == "Aveva")
@@ -245,12 +243,10 @@ namespace ServerKeyLogsParser
                     return userInfo.ElementAt(i).getId();
                 }
             }
-            //ДОБАВИТЬ ИКЛЮЧЕНИЕ-ПОЛЬЗОВАТЕЛЬ НЕ НАЙДЕН
-            throw new Exception();
+            return addUserIntoDB(userName, host);
         }
 
-        //Функция создания пользователя, если он не найден функцией 
-        //checkExistUserInDB(вылет исключения) вернется id пользователя
+        //Функция создания пользователя
         private int addUserIntoDB(string userName, string host)
         {
             configProxyForLoadDataFromBDAndExecute("INSERT INTO Users VALUES('" + userName +
@@ -263,17 +259,52 @@ namespace ServerKeyLogsParser
 
         //Функция получения id ПО по его имени
         private int checkExistSoftWareInDB(List<MappingIdWithName> softwareInfo,
-            string softwareName)
+            ResultTableRows allInfo)
         {
             for (int i = 0; i < softwareInfo.Count; i++)
             {
-                if (softwareName.Equals(softwareInfo.ElementAt(i).getName()))
+                if (allInfo.po.Equals(softwareInfo.ElementAt(i).getName()))
                 {
                     return softwareInfo.ElementAt(i).getId();
                 }
             }
-            //ДОБАВИТЬ ИКЛЮЧЕНИЕ-ПО НЕ НАЙДЕНО(его необходимо добавить вручную)
-            throw new Exception();
+            return -1;
+        }
+
+        //Функция создания по
+        private int addSoftwareIntoDB(ResultTableRows allInfo)
+        {
+            configProxyForLoadDataFromBDAndExecute("INSERT INTO Software VALUES("+
+                checkExistVendorInDB(allInfo).ToString() + ",NULL,0,'"+ allInfo.po + "',0);");
+            ConverterSingleColumnFromDataSet converter = new ConverterSingleColumnFromDataSet();
+            return int.Parse(converter.convert(configProxyForLoadDataFromBDAndExecute(
+                "SELECT SoftwareID FROM Software WHERE Code='"+ allInfo.po + "'"))[0]);
+        }
+
+        //Функция получения id vendor по его имени
+        private int checkExistVendorInDB(ResultTableRows allInfo)
+        {
+            ConverterSingleColumnFromDataSet converter = new ConverterSingleColumnFromDataSet();
+            DataSet ds = configProxyForLoadDataFromBDAndExecute(
+                "SELECT VendorID FROM Vendor WHERE Name='" + allInfo.vendor + "'");
+            if (converter.convert(ds) != null)
+            {
+                return int.Parse(converter.convert(ds)[0]);
+            }
+            else
+            {
+                addVendorIntoDB(allInfo);
+                ds = configProxyForLoadDataFromBDAndExecute(
+                "SELECT VendorID FROM Vendor WHERE Name='" + allInfo.vendor + "'");
+                return int.Parse(converter.convert(ds)[0]);
+            }
+        }
+
+        //Функция создания vendor
+        private void addVendorIntoDB(ResultTableRows allInfo)
+        {
+            configProxyForLoadDataFromBDAndExecute("INSERT INTO Vendor VALUES('" + 
+                allInfo.vendor + "')");
         }
 
         public void recoverySelf(ModelsState state)
@@ -314,16 +345,30 @@ namespace ServerKeyLogsParser
 
             if (state.avevasLogWasDeleteStr!=null)
             {
-                state.avevasLogWasDelete = false;
-                //запуск утилиты создания лога Aveva
-                string command = @"/C " + Directory.GetCurrentDirectory() +
-                    "\\CreateAvevasLog.bat";
-                WorkWithWindowsCommandLine wwwcl = new WorkWithWindowsCommandLine();
-                wwwcl.Run_command(command);
-                while (File.Exists(Directory.GetCurrentDirectory() + "\\output.txt")
-                    == false)//ожидание создания файла
+                try
                 {
-
+                    state.avevasLogWasDelete = false;
+                    //запуск утилиты создания лога Aveva
+                    string command = @"/C " + Directory.GetCurrentDirectory() +
+                        "\\CreateAvevasLog.bat";
+                    WorkWithWindowsCommandLine wwwcl = new WorkWithWindowsCommandLine();
+                    int currentTime = DateTime.Now.Minute;
+                    wwwcl.Run_command(command); //WindowsCommandLineError
+                    while (File.Exists(Directory.GetCurrentDirectory() + "\\output.txt")
+                        == false)//ожидание создания файла
+                    {
+                        //Если в течении 2 минут не создается, то bat, который должен
+                        //создать файл-не отработал
+                        if (DateTime.Now.Minute-2 >= currentTime)
+                        {
+                            throw new WindowsCommandLineError("CreateAvevasLog.bat not create aveva " +
+                                "log-file");
+                        }
+                    }
+                }
+                catch(Exception ex)
+                {
+                    ExceptionHandler.getInstance().processing(ex);
                 }
             }
             

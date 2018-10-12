@@ -61,6 +61,7 @@
     <Compile Include="CommonComponents\Exceptions\DatabaseQueryError.cs" />
     <Compile Include="CommonComponents\Exceptions\NoConfigurationSpecified.cs" />
     <Compile Include="CommonComponents\Exceptions\NoDataBaseConnection.cs" />
+    <Compile Include="CommonComponents\Exceptions\WindowsCommandLineError.cs" />
     <Compile Include="CommonComponents\InitialyzerComponent\InitComponents.cs" />
     <Compile Include="CommonComponents\InitialyzerComponent\Initialyzer.cs" />
     <Compile Include="CommonComponents\InitialyzerComponent\ReadConfig\ConfigReader.cs" />

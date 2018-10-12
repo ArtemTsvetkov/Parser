@@ -18,6 +18,10 @@ namespace ServerKeyLogsParser.CommonComponents.DataConverters
             {
                 newData[i] = ds.Tables[0].Rows[i][0].ToString();
             }
+            if(newData.Length == 0)
+            {
+                return null;
+            }
             return newData;
         }
     }

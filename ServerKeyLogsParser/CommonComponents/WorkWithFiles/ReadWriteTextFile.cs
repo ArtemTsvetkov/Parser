@@ -66,7 +66,7 @@ namespace ServerKeyLogsParser
         public static List<string> Read_from_file(string file_path, string last_records_time)
         {
             List<String> buf_of_file_lines = new List<string>();
-            int i = 0;
+            int i = 1;
             try
             {
                 string aveva_log_example = " [Contacting Sentinel RMS Development Kit server on host \"aveva\"]";
@@ -87,8 +87,20 @@ namespace ServerKeyLogsParser
                 while (reader.EndOfStream == false)
                 {
                     string row = reader.ReadLine();
+                    i++;
+
+                    //Проверка, возможно это лог-файл Aveva
+                    if(i==5)
+                    {
+                        if(row.Equals(aveva_log_example))
+                        {
+                            found_the_last_time = true;
+                            buf_of_file_lines.Insert(0,"Aveva");
+                        }
+                    }
+
                     if (found_the_last_date == 0)//новая дата  не найдена, в логе вначале указывается дата, а потом время(оно на нижних строках)
-                    {//третий аргумент для случая, если будет найден пердыдущий день и нужно будет запомнить час
+                    {//третий аргумент для случая, если будет найден предыдущий день и нужно будет запомнить час
                         found_the_last_date = Check_rows_on_date(row, onli_time_plus_date[0], ref previous_time_hour);
                         if (found_the_last_date == 1)
                         {
