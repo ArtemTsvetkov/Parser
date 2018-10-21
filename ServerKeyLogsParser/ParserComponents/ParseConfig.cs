@@ -10,7 +10,7 @@ namespace ServerKeyLogsParser.ParserComponents
     {
         //Заполняется только при помощи запроса к командной строке!
         public string serversHost;
-        //Путь до лог файлов Aveva(после работы этот файл удаляется)
+        //Путь до приложения, создающего лог-файл Aveva
         public string avevasLogWasDeleteStr;
         public List<LogAndHisLastEntry> logFiles;
         public string connectionString;

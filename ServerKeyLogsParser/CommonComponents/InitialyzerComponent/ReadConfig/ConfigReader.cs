@@ -76,7 +76,6 @@ namespace ServerKeyLogsParser.CommonComponents.InitialyzerComponent.ReadConfig
                     //исключаются другим способом - по запросу к БД.
                     lahle2.last_entry = "1.1.1970_12:0:0";
                     config.logFiles.Add(lahle2);
-                    config.avevasLogWasDeleteStr = lahle2.path;
                 }
 
 

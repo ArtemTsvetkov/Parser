@@ -209,11 +209,9 @@ namespace ServerKeyLogsParser
                 buf.Add("Module: Form1");
                 DateTime thisDay = DateTime.Now;
                 buf.Add("Time: " + thisDay.ToString());
-                buf.Add("Ошибка: файл " + state.avevasLogWasDeleteStr +
-                    " пуст. Произошла ошибка при создании лога aveva.");
+                buf.Add("Ошибка: при создании или обработки лога aveva.");
                 ReadWriteTextFile.Write_to_file(buf, Directory.GetCurrentDirectory() +
                     "\\Errors.txt", 0);
-                File.Delete(state.avevasLogWasDeleteStr);
             }
         }
 
@@ -348,7 +346,15 @@ namespace ServerKeyLogsParser
                 try
                 {
                     state.avevasLogWasDelete = false;
-                    //запуск утилиты создания лога Aveva
+                    //Создание bat-файла Aveva
+                    List<string> buf = new List<string>();
+                    buf.Add(@"@echo off");
+                    buf.Add("cd /d " + state.avevasLogWasDeleteStr);
+                    buf.Add("lsmon aveva > " + Directory.GetCurrentDirectory() + "\\output.txt");
+                    ReadWriteTextFile.Write_to_file(buf, Directory.GetCurrentDirectory() +
+                        "\\CreateAvevasLog.bat", 1);
+
+                    //запуск утилиты создания лога Aveva(Запуск ранее созданного bat файла)
                     string command = @"/C " + Directory.GetCurrentDirectory() +
                         "\\CreateAvevasLog.bat";
                     WorkWithWindowsCommandLine wwwcl = new WorkWithWindowsCommandLine();
