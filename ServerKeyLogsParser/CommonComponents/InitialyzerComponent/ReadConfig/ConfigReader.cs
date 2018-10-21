@@ -21,6 +21,7 @@ namespace ServerKeyLogsParser.CommonComponents.InitialyzerComponent.ReadConfig
                 INI.KeyExists("pathAvevasParser", "Settings")) &
                 INI.KeyExists("connectionString", "Settings"))
             {
+                config.logFiles = new List<LogAndHisLastEntry>();
                 if (INI.KeyExists("pathOfLogFile", "Settings"))
                 {
                     LogAndHisLastEntry lahle = new LogAndHisLastEntry();
@@ -28,7 +29,6 @@ namespace ServerKeyLogsParser.CommonComponents.InitialyzerComponent.ReadConfig
                     if (INI.KeyExists("lastDateOfLogFile", "Settings"))
                     {
                         lahle.last_entry = INI.ReadINI("Settings", "lastDateOfLogFile");
-                        config.logFiles = new List<LogAndHisLastEntry>();
                         config.logFiles.Add(lahle);
                     }
                     else

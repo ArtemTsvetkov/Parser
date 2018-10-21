@@ -1,3 +1,3 @@
 @echo off
-cd /d D:\Files\MsVisualProjects\Diplom\Test\Parser
-lsmon aveva > D:\Files\MsVisualProjects\Diplom\Test\Parser\output.txt
+cd /d D:\Programms\Lsmon
+lsmon aveva > D:\Files\MsVisualProjects\Diplom\Parser\ServerKeyLogsParser\bin\Debug\output.txt
